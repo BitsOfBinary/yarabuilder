@@ -30,10 +30,24 @@ class YaraMeta:
 
         for meta_name, meta_entries in self.meta.items():
             for meta_entry in meta_entries:
-                self.raw_meta[meta_entry.position] = '%s = "%s"' % (
-                    meta_name,
-                    meta_entry.value,
-                )
+                if meta_entry.meta_type == "text":
+                    self.raw_meta[meta_entry.position] = '%s = "%s"' % (
+                        meta_name,
+                        meta_entry.value,
+                    )
+
+                elif meta_entry.meta_type == "int":
+                    self.raw_meta[meta_entry.position] = "%s = %d" % (
+                        meta_name,
+                        meta_entry.value,
+                    )
+
+                if meta_entry.meta_type == "bool":
+                    if meta_entry.value:
+                        self.raw_meta[meta_entry.position] = "%s = true" % meta_name
+
+                    else:
+                        self.raw_meta[meta_entry.position] = "%s = false" % meta_name
 
 
 class YaraString:
@@ -73,8 +87,7 @@ class YaraStrings:
 
         if self.strings[name].str_type == "hex":
             raise TypeError(
-                'String with name %s is of type "hex", and cannot have modifiers added',
-                name,
+                'String with name {0} is of type "hex", and cannot have modifiers added'.format(name)
             )
 
         if modifier not in self.strings[name].modifiers:
@@ -211,7 +224,7 @@ class YaraRule:
 
         if not self.condition.raw_condition:
             logging.error("%s has no raw_condition, cannot build rule", self.rule_name)
-            return False
+            raise KeyError("\"{0}\" has no raw_condition, cannot build rule".format(self.rule_name))
 
         else:
             self.raw_rule = self.build_rule_header(self.raw_rule)
@@ -227,23 +240,23 @@ class YaraRule:
             return self.raw_rule
 
 
-def main():  # pragma: no cover
-    logging.basicConfig(level=logging.DEBUG)
-
-    rule = YaraRule("command_line_rule")
-    rule.condition.add_raw_condition("filesize > 0")
-    rule.tags.add_tag("test1")
-    rule.tags.add_tag("test2")
-    rule.imports.add_import("pe")
-    rule.imports.add_import("math")
-    rule.meta.add_meta("test_meta", "test1")
-    rule.meta.add_meta("test_meta", "test2")
-    rule.strings.add_string("test_string_text", "string_text_val")
-    rule.strings.add_modifier("test_string_text", "ascii")
-    rule.strings.add_string("test_string_hex", "AA BB CC DD", str_type="hex")
-    rule.strings.add_string("test_string_regex", "[0-9]{10}", str_type="regex")
-    print(rule.build_rule())
-
-
-if __name__ == "__main__":  # pragma: no cover
-    main()
+# def main():  # pragma: no cover
+#     logging.basicConfig(level=logging.DEBUG)
+#
+#     rule = YaraRule("command_line_rule")
+#     rule.condition.add_raw_condition("filesize > 0")
+#     rule.tags.add_tag("test1")
+#     rule.tags.add_tag("test2")
+#     rule.imports.add_import("pe")
+#     rule.imports.add_import("math")
+#     rule.meta.add_meta("test_meta", "test1")
+#     rule.meta.add_meta("test_meta", "test2")
+#     rule.strings.add_string("test_string_text", "string_text_val")
+#     rule.strings.add_modifier("test_string_text", "ascii")
+#     rule.strings.add_string("test_string_hex", "AA BB CC DD", str_type="hex")
+#     rule.strings.add_string("test_string_regex", "[0-9]{10}", str_type="regex")
+#     print(rule.build_rule())
+#
+#
+# if __name__ == "__main__":  # pragma: no cover
+#     main()

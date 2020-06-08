@@ -16,7 +16,7 @@ class TestYaraRule(unittest.TestCase):
         self.assertEqual("    ", self.yara_rule.ws)
 
     def test_build_rule_no_condition(self):
-        self.assertFalse(self.yara_rule.build_rule())
+        self.assertRaises(KeyError, self.yara_rule.build_rule)
 
     def test_build_rule_header(self):
         self.yara_rule.condition.add_raw_condition(self.test_condition)
@@ -224,6 +224,18 @@ class TestYaraMeta(unittest.TestCase):
         self.assertEqual(self.yara_meta.meta["test_name"][1].value, "test_value2")
         self.assertEqual(self.yara_meta.meta["test_name"][1].meta_type, "text")
         self.assertEqual(self.yara_meta.meta["test_name"][1].position, 1)
+
+    def test_add_meta_text(self):
+        self.yara_meta.add_meta("test_name", "test_value", meta_type="text")
+        self.assertIsInstance(self.yara_meta.meta["test_name"][0].value, str)
+
+    def test_add_meta_int(self):
+        self.yara_meta.add_meta("test_name", 10, meta_type="int")
+        self.assertIsInstance(self.yara_meta.meta["test_name"][0].value, int)
+
+    def test_add_meta_bool(self):
+        self.yara_meta.add_meta("test_name", True, meta_type="bool")
+        self.assertIsInstance(self.yara_meta.meta["test_name"][0].value, bool)
 
     def test_build_meta(self):
         self.yara_meta.add_meta("test_name", "test_value1")
