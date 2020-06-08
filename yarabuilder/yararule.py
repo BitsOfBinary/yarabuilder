@@ -87,7 +87,9 @@ class YaraStrings:
 
         if self.strings[name].str_type == "hex":
             raise TypeError(
-                'String with name {0} is of type "hex", and cannot have modifiers added'.format(name)
+                'String with name {0} is of type "hex", and cannot have modifiers added'.format(
+                    name
+                )
             )
 
         if modifier not in self.strings[name].modifiers:
@@ -224,7 +226,9 @@ class YaraRule:
 
         if not self.condition.raw_condition:
             logging.error("%s has no raw_condition, cannot build rule", self.rule_name)
-            raise KeyError("\"{0}\" has no raw_condition, cannot build rule".format(self.rule_name))
+            raise KeyError(
+                '"{0}" has no raw_condition, cannot build rule'.format(self.rule_name)
+            )
 
         else:
             self.raw_rule = self.build_rule_header(self.raw_rule)

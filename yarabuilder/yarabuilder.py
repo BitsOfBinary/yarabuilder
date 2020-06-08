@@ -55,7 +55,9 @@ class YaraBuilder:
             self.yara_rules[rule_name].strings.add_string(name, value, str_type="text")
 
         else:
-            self.yara_rules[rule_name].strings.add_anonymous_string(value, str_type="text")
+            self.yara_rules[rule_name].strings.add_anonymous_string(
+                value, str_type="text"
+            )
 
     def add_hex_string(self, rule_name, value, name=None):
         self.no_rule_name_exception_handler(rule_name)
@@ -64,7 +66,9 @@ class YaraBuilder:
             self.yara_rules[rule_name].strings.add_string(name, value, str_type="hex")
 
         else:
-            self.yara_rules[rule_name].strings.add_anonymous_string(value, str_type="hex")
+            self.yara_rules[rule_name].strings.add_anonymous_string(
+                value, str_type="hex"
+            )
 
     def add_regex_string(self, rule_name, value, name=None):
         self.no_rule_name_exception_handler(rule_name)
@@ -73,7 +77,9 @@ class YaraBuilder:
             self.yara_rules[rule_name].strings.add_string(name, value, str_type="regex")
 
         else:
-            self.yara_rules[rule_name].strings.add_anonymous_string(value, str_type="regex")
+            self.yara_rules[rule_name].strings.add_anonymous_string(
+                value, str_type="regex"
+            )
 
     def add_condition(self, rule_name, condition):
         self.no_rule_name_exception_handler(rule_name)
@@ -86,12 +92,12 @@ class YaraBuilder:
         return self.yara_rules[rule_name].build_rule()
 
     def build_rules(self):
-        built_rules = ""
+        built_rules = []
 
         for rule in self.yara_rules.values():
-            built_rules += rule.build_rule()
+            built_rules.append(rule.build_rule())
 
-        return built_rules
+        return "\n\n".join(built_rules)
 
 
 def main():  # pragma: no cover
@@ -104,8 +110,12 @@ def main():  # pragma: no cover
     yara_builder.add_condition("test_rule1", "filesize > 0")
 
     yara_builder.create_rule("test_rule2")
+    yara_builder.add_text_string("test_rule2", "hello")
+    yara_builder.add_text_string("test_rule2", "world")
+    yara_builder.add_condition("test_rule2", "any of them")
 
     print(yara_builder.build_rules())
+
 
 if __name__ == "__main__":  # pragma: no cover
     main()
