@@ -48,4 +48,6 @@ Usage
 TODO
 ----
 - Improve documentation
+- More logging in the classes
 - Add the capability to add comments to YARA rules
+- Add optional validation for building YARA rules (e.g. checking imports are valid, and more longer term check the condition is valid)
