@@ -8,7 +8,7 @@ Installation
 
 yarabuilder requires Python 3+
 
-Install with pip locally::
+Install with pip locally
 
     pip install .
 	
@@ -16,8 +16,6 @@ TODO: Add to PyPI
 
 Usage
 -----
-
-.. code-block:: python
 
     >>> import yarabuilder
     >>> yara_builder = yarabuilder.YaraBuilder()
