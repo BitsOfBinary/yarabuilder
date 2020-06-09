@@ -12,8 +12,6 @@ Install with pip locally
 
     pip install .
 	
-TODO: Add to PyPI
-
 Usage
 -----
 
@@ -48,3 +46,9 @@ Usage
             any of them
     }
     >>>
+
+TODO
+----
+- Add to PyPI
+- Improve documentation
+- Add the capability to add comments to YARA rules
