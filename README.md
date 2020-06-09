@@ -8,9 +8,7 @@ Installation
 
 yarabuilder requires Python 3+
 
-Install with pip locally
-
-    pip install .
+    pip install yarabuilder
 	
 Usage
 -----
@@ -49,6 +47,5 @@ Usage
 
 TODO
 ----
-- Add to PyPI
 - Improve documentation
 - Add the capability to add comments to YARA rules
