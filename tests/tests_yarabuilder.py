@@ -12,7 +12,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules["test_rule"] = mocked_yara_rule
 
     def test_no_rule_name_exception_handler(self):
-        self.assertRaises(KeyError, self.yara_builder.no_rule_name_exception_handler, "nonexistant_rule")
+        self.assertRaises(KeyError, self.yara_builder._no_rule_name_exception_handler, "nonexistant_rule")
 
     def test_create_rule(self):
         self.yara_builder.create_rule("another_rule")

@@ -1,5 +1,4 @@
 import collections
-import logging
 
 
 class YaraMetaEntry:
@@ -225,7 +224,6 @@ class YaraRule:
     def build_rule(self):
 
         if not self.condition.raw_condition:
-            logging.error("%s has no raw_condition, cannot build rule", self.rule_name)
             raise KeyError(
                 '"{0}" has no raw_condition, cannot build rule'.format(self.rule_name)
             )
