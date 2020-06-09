@@ -1,2 +1,2 @@
-__all__ = ['YaraBuilder']
+__all__ = ["YaraBuilder"]
 from yarabuilder.yarabuilder import *

@@ -1,7 +1,15 @@
 import unittest
 
-from yarabuilder.yararule import YaraRule, YaraCondition, YaraTags, YaraImports, YaraString, YaraStrings, \
-    YaraMeta, YaraMetaEntry
+from yarabuilder.yararule import (
+    YaraRule,
+    YaraCondition,
+    YaraTags,
+    YaraImports,
+    YaraString,
+    YaraStrings,
+    YaraMeta,
+    YaraMetaEntry,
+)
 
 
 class TestYaraRule(unittest.TestCase):
