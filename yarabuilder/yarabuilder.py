@@ -23,7 +23,7 @@ class YaraBuilder:
         if rule_name in self.yara_rules:
             raise KeyError('Rule with name "%s" already exists', rule_name)
 
-        self.yara_rules[rule_name] = YaraRule(rule_name)
+        self.yara_rules[rule_name] = YaraRule(rule_name, ws=self.ws)
 
     def add_tag(self, rule_name, tag):
         self.no_rule_name_exception_handler(rule_name)
