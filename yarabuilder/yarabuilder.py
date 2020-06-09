@@ -48,29 +48,33 @@ class YaraBuilder:
         elif isinstance(value, str):
             self.yara_rules[rule_name].meta.add_meta(name, value, meta_type="text")
 
-    def add_text_string(self, rule_name, value, name=None):
+    def add_text_string(self, rule_name, value, name=None, modifiers=[]):
         self.no_rule_name_exception_handler(rule_name)
 
         if name:
             self.yara_rules[rule_name].strings.add_string(name, value, str_type="text")
 
         else:
-            self.yara_rules[rule_name].strings.add_anonymous_string(
+            name = self.yara_rules[rule_name].strings.add_anonymous_string(
                 value, str_type="text"
             )
 
-    def add_hex_string(self, rule_name, value, name=None):
+        self.modifier_handler(rule_name, name, modifiers)
+
+    def add_hex_string(self, rule_name, value, name=None, modifiers=[]):
         self.no_rule_name_exception_handler(rule_name)
 
         if name:
             self.yara_rules[rule_name].strings.add_string(name, value, str_type="hex")
 
         else:
-            self.yara_rules[rule_name].strings.add_anonymous_string(
+            name = self.yara_rules[rule_name].strings.add_anonymous_string(
                 value, str_type="hex"
             )
 
-    def add_regex_string(self, rule_name, value, name=None):
+        self.modifier_handler(rule_name, name, modifiers)
+
+    def add_regex_string(self, rule_name, value, name=None, modifiers=[]):
         self.no_rule_name_exception_handler(rule_name)
 
         if name:
@@ -80,6 +84,13 @@ class YaraBuilder:
             self.yara_rules[rule_name].strings.add_anonymous_string(
                 value, str_type="regex"
             )
+
+        self.modifier_handler(rule_name, name, modifiers)
+
+    def modifier_handler(self, rule_name, str_name, modifiers):
+        if modifiers:
+            for modifier in modifiers:
+                self.yara_rules[rule_name].strings.add_modifier(str_name, modifier)
 
     def add_condition(self, rule_name, condition):
         self.no_rule_name_exception_handler(rule_name)

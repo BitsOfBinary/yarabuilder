@@ -7,6 +7,7 @@ from yarabuilder.yararule import YaraRule
 class TestYaraBuilder(unittest.TestCase):
     @unittest.mock.patch('yarabuilder.yararule.YaraRule')
     def setUp(self, mocked_yara_rule):
+        mocked_yara_rule.build_rule = unittest.mock.MagicMock(return_value="")
         self.yara_builder = YaraBuilder()
         self.yara_builder.yara_rules["test_rule"] = mocked_yara_rule
 
@@ -68,6 +69,10 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.add_regex_string("test_rule", "/test[0-9]{2}/")
         self.yara_builder.yara_rules["test_rule"].strings.add_anonymous_string.assert_called_once_with("/test[0-9]{2}/", str_type="regex")
 
+    def test_modifier_handler(self):
+        self.yara_builder.add_text_string("test_rule", "test_text_string", name="test_string_name", modifiers=["ascii", "wide"])
+        self.yara_builder.yara_rules["test_rule"].strings.add_modifier.assert_has_calls([unittest.mock.call("test_string_name", "ascii"), unittest.mock.call("test_string_name", "wide")])
+
     def test_add_condition(self):
         self.yara_builder.add_condition("test_rule", "any of them")
         self.yara_builder.yara_rules["test_rule"].condition.add_raw_condition.assert_called_once_with("any of them")
@@ -78,6 +83,7 @@ class TestYaraBuilder(unittest.TestCase):
 
     @unittest.mock.patch('yarabuilder.yararule.YaraRule')
     def test_build_rules(self, mocked_yara_rule):
+        mocked_yara_rule.build_rule = unittest.mock.MagicMock(return_value="")
         self.yara_builder.yara_rules["another_rule"] = mocked_yara_rule
         self.yara_builder.build_rules()
         self.yara_builder.yara_rules["test_rule"].build_rule.assert_called_once()
