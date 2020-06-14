@@ -1,6 +1,10 @@
 yarabuilder
 ===========
 
+.. image:: https://readthedocs.org/projects/yarabuilder/badge/?version=latest
+  :target: https://yarabuilder.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+
 Python module to create Yara rules.
 
 Installation
