@@ -4,6 +4,9 @@ yarabuilder
 .. image:: https://readthedocs.org/projects/yarabuilder/badge/?version=latest
   :target: https://yarabuilder.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
+.. image:: http://img.shields.io/pypi/v/yarabuilder.svg
+  :target: https://pypi.org/project/yarabuilder/
+  :alt: PyPi Version
 
 Python module to create Yara rules.
 
