@@ -1,5 +1,7 @@
-Welcome to yarabuilder's documentation!
-=======================================
+.. include:: ..\..\README.rst
+
+Module Documentation
+--------------------
 
 .. automodule:: yarabuilder.yarabuilder
     :members:

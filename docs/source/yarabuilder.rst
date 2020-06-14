@@ -19,12 +19,3 @@ yarabuilder.yararule module
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: yarabuilder
-   :members:
-   :undoc-members:
-   :show-inheritance:

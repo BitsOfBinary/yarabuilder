@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 from yarabuilder.yararule import (
@@ -22,6 +23,11 @@ class TestYaraRule(unittest.TestCase):
     def test_yara_rule_init(self):
         self.assertEqual(self.test_rule_name, self.yara_rule.rule_name)
         self.assertEqual("    ", self.yara_rule.ws)
+
+    def test_yara_rule_init_custom_logger(self):
+        logger = logging.getLogger("test")
+        yara_rule = YaraRule(self.test_rule_name, logger=logger)
+        self.assertEqual(yara_rule.logger, logger)
 
     def test_build_rule_no_condition(self):
         self.assertRaises(KeyError, self.yara_rule.build_rule)
@@ -74,7 +80,7 @@ class TestYaraRule(unittest.TestCase):
         self.raw_rule = self.yara_rule.build_rule_meta_section(self.raw_rule)
         self.assertEqual(
             self.raw_rule,
-            '    meta:\n        '
+            "    meta:\n        "
             'test_name1 = "test_value1"\n        '
             "test_name2 = 10\n\n",
         )
@@ -248,7 +254,7 @@ class TestYaraStrings(unittest.TestCase):
 
         self.assertEqual(
             self.yara_strings.raw_strings,
-            ["$ = {AA BB CC DD}", "$test_name1 = {EE FF 00 11}",],
+            ["$ = {AA BB CC DD}", "$test_name1 = {EE FF 00 11}"],
         )
 
     def test_build_regex_strings(self):

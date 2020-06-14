@@ -11,20 +11,34 @@ from yarabuilder.yararule import YaraRule
 class YaraBuilder:
     """
     Main class to interface with the YaraRule object
+
+    Attributes:
+        yara_rules (OrderedDict()): collection of YaraRule objects being built
+        logger: the logger for this class
     """
 
-    def __init__(self, ws="    "):
+    def __init__(self, ws="    ", logger=None):
         """
         Initialise YaraBuilder
-        :param ws: whitespace to use when building the rules (defaults to 4 spaces)
+
+        Args:
+            ws (str): whitespace to use when building the rules (defaults to 4 spaces)
+            logger (optional): logger to use in the class
         """
         self.ws = ws
         self.yara_rules = collections.OrderedDict()
 
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = logging.getLogger(__name__)
+
     def _no_rule_name_exception_handler(self, rule_name):
         """
         Handler for if a rule_name is not present in the YaraBuilder object
-        :param rule_name: the rule_name to check
+
+        Args:
+            rule_name (str): the rule_name to check if present in the YaraBuilder
         """
         if rule_name not in self.yara_rules:
             raise KeyError('Rule  "{0}" doesn\'t exist'.format(rule_name))
@@ -32,7 +46,9 @@ class YaraBuilder:
     def create_rule(self, rule_name):
         """
         Create a new YaraRule object in the YaraBuilder
-        :param rule_name: the name of the rule as a string
+
+        Args:
+            rule_name (str): the name of the rule to create
         """
         if rule_name in self.yara_rules:
             raise KeyError('Rule with name "{0}" already exists'.format(rule_name))
@@ -42,8 +58,10 @@ class YaraBuilder:
     def add_tag(self, rule_name, tag):
         """
         Add a tag to a specified rule (i.e. appears after the rule_name when built)
-        :param rule_name: the rule_name to add the tag to
-        :param tag: the tag to be added
+
+        Args:
+            rule_name (str): the rule_name to add the tag to
+            tag (str): the tag to be added
         """
         self._no_rule_name_exception_handler(rule_name)
         self.yara_rules[rule_name].tags.add_tag(tag)
@@ -51,8 +69,10 @@ class YaraBuilder:
     def add_import(self, rule_name, import_str):
         """
         Add an import to a specified rule (i.e. appears before the rule_name when built)
-        :param rule_name: the rule_name to add the import to
-        :param import_str: the import to be added
+
+        Args:
+            rule_name (str): the rule_name to add the import to
+            import_str (str): the import to be added
         """
         self._no_rule_name_exception_handler(rule_name)
         self.yara_rules[rule_name].imports.add_import(import_str)
@@ -60,11 +80,13 @@ class YaraBuilder:
     def add_meta(self, rule_name, name, value, meta_type=None):
         """
         Add a meta key/value pair to the specified rule_name
-        :param rule_name: the rule_name to add the meta to
-        :param name: the name of the meta key
-        :param value: the value to go in the metadata (can be a str, int or bool)
-        :param meta_type: the type of the meta data,
-                          which will be determined by the function if nothing supplied
+
+        Args:
+            rule_name (str): the rule_name to add the meta to
+            name (str): the name of the meta key
+            value (str/int/bool): the value to go in the metadata
+            meta_type (str, optional): the type of the meta data,
+                       which will be determined by the function if nothing supplied
         """
         self._no_rule_name_exception_handler(rule_name)
 
@@ -83,10 +105,12 @@ class YaraBuilder:
     def add_text_string(self, rule_name, value, name=None, modifiers=None):
         """
         Add a text string (e.g. $ = "test") to the specified rule_name
-        :param rule_name: the rule_name to add the string to
-        :param value: the text string
-        :param name: the optional name of the string (if not provided will add as anonymous string)
-        :param modifiers: any modifiers to add to the string
+
+        Args:
+            rule_name (str): the rule_name to add the string to
+            value (str): the text string
+            name (str, optional): the optional name of the string (if not provided will add as anonymous string)
+            modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
         if modifiers is None:
             modifiers = []
@@ -105,10 +129,12 @@ class YaraBuilder:
     def add_hex_string(self, rule_name, value, name=None, modifiers=None):
         """
         Add a hex string (e.g. $ = {DE AD BE EF}) to the specified rule_name
-        :param rule_name: the rule_name to add the string to
-        :param value: the hex string
-        :param name: the optional name of the string (if not provided will add as anonymous string)
-        :param modifiers: any modifiers to add to the string
+
+        Args:
+            rule_name (str): the rule_name to add the string to
+            value (str): the hex string
+            name (str, optional): the name of the string (if not provided will add as anonymous string)
+            modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
         if modifiers is None:
             modifiers = []
@@ -127,10 +153,12 @@ class YaraBuilder:
     def add_regex_string(self, rule_name, value, name=None, modifiers=None):
         """
         Add a regex string (e.g. $ = /test[0-9]{2}/) to the specified rule_name
-        :param rule_name: the rule_name to add the string to
-        :param value: the regex string
-        :param name: the optional name of the string (if not provided will add as anonymous string)
-        :param modifiers: any modifiers to add to the string
+
+        Args:
+            rule_name (str): the rule_name to add the string to
+            value (str): the regex string
+            name (str, optional): the name of the string (if not provided will add as anonymous string)
+            modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
         if modifiers is None:
             modifiers = []
@@ -146,12 +174,14 @@ class YaraBuilder:
 
         self._modifier_handler(rule_name, name, modifiers)
 
-    def _modifier_handler(self, rule_name, str_name, modifiers):
+    def _modifier_handler(self, rule_name, str_name, modifiers=None):
         """
         Handler for to add several modifiers to a string
-        :param rule_name: the rule_name to add the modifiers to
-        :param str_name: the name of the string to add the modifiers to
-        :param modifiers: a list of modifiers
+
+        Args:
+            rule_name (str): the rule_name to add the modifiers to
+            str_name (str): the name of the string to add the modifiers to
+            modifiers (:obj:`list` of :obj:`str`, optional): a list of modifiers
         """
         if modifiers:
             for modifier in modifiers:
@@ -160,8 +190,10 @@ class YaraBuilder:
     def add_condition(self, rule_name, condition):
         """
         Add a raw condition to the specified rule_name
-        :param rule_name: the rule_name to add the condition to
-        :param condition: the condition as a string
+
+        Args:
+            rule_name (str): the rule_name to add the condition to
+            condition (str): the condition as a string
         """
         self._no_rule_name_exception_handler(rule_name)
 
@@ -170,8 +202,12 @@ class YaraBuilder:
     def build_rule(self, rule_name):
         """
         Build an individual rule in the YaraBuilder object
-        :param rule_name: the rule_name to build
-        :return: a text string of the built rule
+
+        Args:
+            rule_name (str): the rule_name to build
+
+        Returns:
+            str: a text string of the built rule
         """
         self._no_rule_name_exception_handler(rule_name)
 
@@ -180,7 +216,9 @@ class YaraBuilder:
     def build_rules(self):
         """
         Build all rules in the YaraBuilder object
-        :return: a text string of all built rules
+
+        Returns:
+            str: a text string of all built rules
         """
         built_rules = []
 
@@ -194,7 +232,6 @@ def main():  # pragma: no cover
     """
     Method to test if running the module from the command line
     """
-    logging.basicConfig(level=logging.DEBUG)
 
     yara_builder = YaraBuilder()
 

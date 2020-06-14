@@ -1,4 +1,5 @@
 import unittest.mock
+import logging
 
 from yarabuilder.yarabuilder import YaraBuilder
 from yarabuilder.yararule import YaraRule
@@ -10,6 +11,11 @@ class TestYaraBuilder(unittest.TestCase):
         mocked_yara_rule.build_rule = unittest.mock.MagicMock(return_value="")
         self.yara_builder = YaraBuilder()
         self.yara_builder.yara_rules["test_rule"] = mocked_yara_rule
+
+    def test_yara_builder_init_custom_logger(self):
+        logger = logging.getLogger("test")
+        yara_builder = YaraBuilder(logger=logger)
+        self.assertEqual(yara_builder.logger, logger)
 
     def test_no_rule_name_exception_handler(self):
         self.assertRaises(
