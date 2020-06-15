@@ -34,6 +34,8 @@ class YaraMeta:
         raw_meta (:obj:`list` of :obj:`str`): list of the built meta strings
         number_of_meta_entries (int): the number of meta values overall
             (not necessarily equal to the number of names in the OrderedDict)
+        valid_meta_types (:obj:`list` of :obj:`str`): list of valid meta types
+        logger (Logger): the logger for this class
     """
 
     def __init__(self):
@@ -43,6 +45,8 @@ class YaraMeta:
         self.meta = collections.OrderedDict()
         self.raw_meta = []
         self.number_of_meta_entries = 0
+        self.valid_meta_types = ["text", "int", "bool"]
+        self.logger = logging.getLogger(__name__)
 
     def add_meta(self, name, value, meta_type="text"):
         """
@@ -53,6 +57,11 @@ class YaraMeta:
             value (str): the meta entry
             meta_type (str, optional): the type of the meta entry (defaults to "text")
         """
+
+        if meta_type not in self.valid_meta_types:
+            self.logger.warning("Invalid meta_type provided (\"%s\"), defaulting to \"text\"", meta_type)
+            meta_type = "text"
+
         if name not in self.meta:
             self.meta[name] = []
 
@@ -66,6 +75,10 @@ class YaraMeta:
         """
         Build the meta section in the correct order
         """
+
+        # Allocate an array the size of the number of meta entries
+        # This may be larger than the number of meta names,
+        # given meta names don't have to be unique
         self.raw_meta = [None] * self.number_of_meta_entries
 
         for meta_name, meta_entries in self.meta.items():
@@ -125,6 +138,8 @@ class YaraStrings:
         strings (OrderedDict): dictionary of the representations of the strings
         number_of_strings (int): total number of strings in the class
         number_of_anonymous_strings (int): number of anonymous string in the class
+        valid_str_types (:obj:`list` of :obj:`str`): list of valid str types
+        logger (Logger): logger for this class
     """
 
     def __init__(self):
@@ -135,6 +150,23 @@ class YaraStrings:
         self.strings = collections.OrderedDict()
         self.number_of_strings = 0
         self.number_of_anonymous_strings = 0
+        self.valid_str_types = ["text", "hex", "regex"]
+        self.logger = logging.getLogger(__name__)
+
+    def _invalid_str_type_handler(self, str_type):
+        """
+        Handler for invalid string types
+        Args:
+            str_type: the str_type to check if valid
+
+        Returns:
+            str: if valid: the original str_type, if invalid: "text"
+        """
+        if str_type not in self.valid_str_types:
+            self.logger.warning("Invalid str_type provided (\"%s\"), defaulting to \"text\"", str_type)
+            str_type = "text"
+
+        return str_type
 
     def add_string(self, name, value, str_type="text"):
         """
@@ -147,6 +179,8 @@ class YaraStrings:
         """
         if name in self.strings:
             raise ValueError('String with name "%s" already exists', name)
+
+        str_type = self._invalid_str_type_handler(str_type)
 
         self.strings[name] = YaraString(value, str_type)
         self.number_of_strings += 1
@@ -162,6 +196,8 @@ class YaraStrings:
         Returns:
             str: the generated name of the string for later handling
         """
+        str_type = self._invalid_str_type_handler(str_type)
+
         name = "@anon%d" % self.number_of_anonymous_strings
         self.strings[name] = YaraString(value, str_type, is_anonymous=True)
         self.number_of_strings += 1

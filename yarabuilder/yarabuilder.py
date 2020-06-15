@@ -15,6 +15,10 @@ class YaraBuilder:
     Attributes:
         yara_rules (OrderedDict()): collection of YaraRule objects being built
         logger: the logger for this class
+
+    Todo:
+        * Add in optional validation for the string modifiers
+        * Add in optional validation for the imports
     """
 
     def __init__(self, ws="    ", logger=None):

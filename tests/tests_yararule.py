@@ -179,6 +179,22 @@ class TestYaraStrings(unittest.TestCase):
         self.assertEqual(self.yara_strings.strings["test_name"].value, "test_value")
         self.assertEqual(self.yara_strings.number_of_strings, 1)
 
+    def test_add_string_invalid_str_type(self):
+        self.yara_strings.add_string("test_name", "test_value", str_type="invalid_type")
+        self.assertEqual(self.yara_strings.strings["test_name"].str_type, "text")
+
+    def test_add_anonymous_string_invalid_str_type(self):
+        name = self.yara_strings.add_anonymous_string("test_value", str_type="invalid_type")
+        self.assertEqual(self.yara_strings.strings[name].str_type, "text")
+
+    def test_invalid_str_type_handler_valid_str_type(self):
+        str_type = self.yara_strings._invalid_str_type_handler("hex")
+        self.assertEqual(str_type, "hex")
+
+    def test_invalid_str_type_handler_invalid_str_type(self):
+        str_type = self.yara_strings._invalid_str_type_handler("invalid_type")
+        self.assertEqual(str_type, "text")
+
     def test_no_duplicate_string_names(self):
         self.yara_strings.add_string("test_name", "test_value")
         self.assertRaises(
@@ -312,6 +328,10 @@ class TestYaraMeta(unittest.TestCase):
     def test_add_meta_bool(self):
         self.yara_meta.add_meta("test_name", True, meta_type="bool")
         self.assertIsInstance(self.yara_meta.meta["test_name"][0].value, bool)
+
+    def test_add_invalid_meta_type(self):
+        self.yara_meta.add_meta("test_name", "test_value", meta_type="invalid_type")
+        self.assertEqual(self.yara_meta.meta["test_name"][0].meta_type, "text")
 
     def test_build_meta(self):
         self.yara_meta.add_meta("test_name1", "test_value1")
