@@ -59,7 +59,9 @@ class YaraMeta:
         """
 
         if meta_type not in self.valid_meta_types:
-            self.logger.warning("Invalid meta_type provided (\"%s\"), defaulting to \"text\"", meta_type)
+            self.logger.warning(
+                'Invalid meta_type provided ("%s"), defaulting to "text"', meta_type
+            )
             meta_type = "text"
 
         if name not in self.meta:
@@ -163,7 +165,9 @@ class YaraStrings:
             str: if valid: the original str_type, if invalid: "text"
         """
         if str_type not in self.valid_str_types:
-            self.logger.warning("Invalid str_type provided (\"%s\"), defaulting to \"text\"", str_type)
+            self.logger.warning(
+                'Invalid str_type provided ("%s"), defaulting to "text"', str_type
+            )
             str_type = "text"
 
         return str_type
@@ -178,7 +182,7 @@ class YaraStrings:
             str_type (str, optional): the type of the string ("text", "hex", "regex")
         """
         if name in self.strings:
-            raise ValueError('String with name "%s" already exists', name)
+            raise ValueError('String with name "{0}" already exists'.format(name))
 
         str_type = self._invalid_str_type_handler(str_type)
 
@@ -214,7 +218,7 @@ class YaraStrings:
             modifier (str): the modifier to add
         """
         if name not in self.strings:
-            raise KeyError("String with name %s doesn't exist", name)
+            raise KeyError("String with name {0} doesn't exist".format(name))
 
         if self.strings[name].str_type == "hex":
             raise TypeError(
@@ -385,17 +389,18 @@ class YaraRule:
         tags (YaraTags): the tags for this YaraRule
     """
 
-    def __init__(self, rule_name, ws="    ", logger=None):
+    def __init__(self, rule_name, whitespace="    ", logger=None):
         """
         Constructor for YaraRule
 
         Args:
             rule_name (str): the name of the rule to create (every rule has to have a name)
-            ws (str, optional): whitespace to use when building the rule (defaults to 4 spaces)
+            whitespace (str, optional): whitespace to use when building the rule
+                (defaults to 4 spaces)
             logger (optional): logger to use in the class
         """
         self.rule_name = rule_name
-        self.ws = ws
+        self.whitespace = whitespace
 
         self.raw_rule = ""
         self.meta = YaraMeta()
@@ -441,8 +446,8 @@ class YaraRule:
         Returns:
             str: string of the built rule with added rule condition
         """
-        rule += "%scondition:\n" % self.ws
-        rule += "%s%s%s\n" % (self.ws, self.ws, self.condition.raw_condition)
+        rule += "%scondition:\n" % self.whitespace
+        rule += "%s%s%s\n" % (self.whitespace, self.whitespace, self.condition.raw_condition)
         rule += "}"
 
         return rule
@@ -459,10 +464,10 @@ class YaraRule:
         """
         self.strings.build_strings()
 
-        rule += "%sstrings:\n" % self.ws
+        rule += "%sstrings:\n" % self.whitespace
 
         for raw_string in self.strings.raw_strings:
-            rule += "%s%s%s\n" % (self.ws, self.ws, raw_string)
+            rule += "%s%s%s\n" % (self.whitespace, self.whitespace, raw_string)
 
         rule += "\n"
 
@@ -480,10 +485,10 @@ class YaraRule:
         """
         self.meta.build_meta()
 
-        rule += "%smeta:\n" % self.ws
+        rule += "%smeta:\n" % self.whitespace
 
         for raw_meta_entry in self.meta.raw_meta:
-            rule += "%s%s%s\n" % (self.ws, self.ws, raw_meta_entry)
+            rule += "%s%s%s\n" % (self.whitespace, self.whitespace, raw_meta_entry)
 
         rule += "\n"
 

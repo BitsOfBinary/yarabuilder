@@ -22,7 +22,7 @@ class TestYaraRule(unittest.TestCase):
 
     def test_yara_rule_init(self):
         self.assertEqual(self.test_rule_name, self.yara_rule.rule_name)
-        self.assertEqual("    ", self.yara_rule.ws)
+        self.assertEqual("    ", self.yara_rule.whitespace)
 
     def test_yara_rule_init_custom_logger(self):
         logger = logging.getLogger("test")

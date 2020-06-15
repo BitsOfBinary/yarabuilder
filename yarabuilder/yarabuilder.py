@@ -21,15 +21,15 @@ class YaraBuilder:
         * Add in optional validation for the imports
     """
 
-    def __init__(self, ws="    ", logger=None):
+    def __init__(self, whitespace="    ", logger=None):
         """
         Initialise YaraBuilder
 
         Args:
-            ws (str): whitespace to use when building the rules (defaults to 4 spaces)
+            whitespace (str): whitespace to use when building the rules (defaults to 4 spaces)
             logger (optional): logger to use in the class
         """
-        self.ws = ws
+        self.whitespace = whitespace
         self.yara_rules = collections.OrderedDict()
 
         if logger:
@@ -57,7 +57,7 @@ class YaraBuilder:
         if rule_name in self.yara_rules:
             raise KeyError('Rule with name "{0}" already exists'.format(rule_name))
 
-        self.yara_rules[rule_name] = YaraRule(rule_name, ws=self.ws)
+        self.yara_rules[rule_name] = YaraRule(rule_name, whitespace=self.whitespace)
 
     def add_tag(self, rule_name, tag):
         """
@@ -113,7 +113,8 @@ class YaraBuilder:
         Args:
             rule_name (str): the rule_name to add the string to
             value (str): the text string
-            name (str, optional): the optional name of the string (if not provided will add as anonymous string)
+            name (str, optional): the optional name of the string
+                (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
         if modifiers is None:
@@ -137,7 +138,8 @@ class YaraBuilder:
         Args:
             rule_name (str): the rule_name to add the string to
             value (str): the hex string
-            name (str, optional): the name of the string (if not provided will add as anonymous string)
+            name (str, optional): the name of the string
+                (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
         if modifiers is None:
@@ -161,7 +163,8 @@ class YaraBuilder:
         Args:
             rule_name (str): the rule_name to add the string to
             value (str): the regex string
-            name (str, optional): the name of the string (if not provided will add as anonymous string)
+            name (str, optional): the name of the string
+                (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
         if modifiers is None:
