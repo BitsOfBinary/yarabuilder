@@ -31,6 +31,7 @@ Usage
     >>> yara_builder.add_tag("my_rule", "yarabuilder")
     >>> yara_builder.add_text_string("my_rule", "Anonymous string")
     >>> yara_builder.add_text_string("my_rule", "Named string", name="str", modifiers=["ascii", "wide"])
+    >>> yara_builder.add_string_comment("my_rule", "str", "example comment")
     >>> yara_builder.add_hex_string("my_rule", "DE AD BE EF")
     >>> yara_builder.add_regex_string("my_rule", "regex[0-9]{2}")
     >>> yara_builder.add_condition("my_rule", "any of them")
@@ -45,7 +46,7 @@ Usage
 
         strings:
             $ = "Anonymous string"
-            $str = "Named string" ascii wide
+            $str = "Named string" ascii wide // example comment
             $ = {DE AD BE EF}
             $ = /regex[0-9]{2}/
 
@@ -57,5 +58,4 @@ Usage
 TODO
 ----
 - More logging in the classes
-- Add the capability to add comments to YARA rules
 - Add optional validation for building YARA rules (e.g. checking imports are valid, and more longer term check the condition is valid)

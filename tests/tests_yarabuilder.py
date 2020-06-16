@@ -143,6 +143,26 @@ class TestYaraBuilder(unittest.TestCase):
             "test_rule"
         ].condition.add_raw_condition.assert_called_once_with("any of them")
 
+    def test_add_meta_comment(self):
+        self.yara_builder.add_meta_comment(
+            "test_rule", "test_meta_name", "test_comment"
+        )
+        self.yara_builder.yara_rules["test_rule"].meta.meta["test_meta_name"][
+            0
+        ].add_comment.assert_called_once_with("test_comment", position="inline")
+
+    @unittest.mock.patch("yarabuilder.yararule.YaraString")
+    def test_add_string_comment(self, mocked_yara_string):
+        self.yara_builder.yara_rules["test_rule"].strings.strings[
+            "test_string_name"
+        ] = mocked_yara_string
+        self.yara_builder.add_string_comment(
+            "test_rule", "test_string_name", "test_comment"
+        )
+        self.yara_builder.yara_rules["test_rule"].strings.strings[
+            "test_string_name"
+        ].add_comment.assert_called_once_with("test_comment", position="inline")
+
     def test_build_rule(self):
         self.yara_builder.build_rule("test_rule")
         self.yara_builder.yara_rules["test_rule"].build_rule.assert_called_once()

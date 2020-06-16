@@ -206,6 +206,40 @@ class YaraBuilder:
 
         self.yara_rules[rule_name].condition.add_raw_condition(condition)
 
+    def add_meta_comment(self, rule_name, meta_name,
+                         comment, position="inline", meta_entry=0):
+        """
+        Add a comment to a meta entry
+        Args:
+            rule_name (str): the name of the rule to add the comment to
+            meta_name (str): the name of the meta entry to add the comment to
+            comment (str): the comment
+            position (str): the position of the comment (above, inline, below)
+            meta_entry (int): the meta entry, given there could be multiple meta fields
+                (defaults to the first entry)
+        """
+        self._no_rule_name_exception_handler(rule_name)
+
+        self.yara_rules[rule_name].meta.meta[meta_name][meta_entry].add_comment(
+            comment, position=position
+        )
+
+    def add_string_comment(self, rule_name, str_name, comment, position="inline"):
+        """
+        Add a comment to a string
+
+        Args:
+            rule_name (str): the name of the rule to add the comment to
+            str_name (str): the name of the string to add the comment to
+            comment (str): the comment
+            position (str): the position of the comment (above, inline, below)
+        """
+        self._no_rule_name_exception_handler(rule_name)
+
+        self.yara_rules[rule_name].strings.strings[str_name].add_comment(
+            comment, position=position
+        )
+
     def build_rule(self, rule_name):
         """
         Build an individual rule in the YaraBuilder object
@@ -244,11 +278,15 @@ def main():  # pragma: no cover
 
     yara_builder.create_rule("test_rule1")
     yara_builder.add_meta("test_rule1", "test_name", "test_value")
+    yara_builder.add_meta_comment("test_rule1", "test_name", "test_comment")
     yara_builder.add_condition("test_rule1", "filesize > 0")
 
     yara_builder.create_rule("test_rule2")
     yara_builder.add_text_string("test_rule2", "hello")
     yara_builder.add_text_string("test_rule2", "world")
+    yara_builder.add_text_string("test_rule2", "test_str_val", "test_str_name")
+    yara_builder.add_string_comment("test_rule2", "test_str_name", "test_comment")
+
     yara_builder.add_condition("test_rule2", "any of them")
 
     print(yara_builder.build_rules())

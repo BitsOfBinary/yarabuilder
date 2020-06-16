@@ -10,7 +10,59 @@ from yarabuilder.yararule import (
     YaraStrings,
     YaraMeta,
     YaraMetaEntry,
+    YaraComment,
+    YaraCommentEnabledClass,
 )
+
+
+class TestYaraComment(unittest.TestCase):
+    def test_yara_comment_init(self):
+        test_yara_comment = YaraComment()
+        self.assertIsNone(test_yara_comment.above)
+        self.assertIsNone(test_yara_comment.inline)
+        self.assertIsNone(test_yara_comment.below)
+
+
+class TestYaraCommentEnabledClass(unittest.TestCase):
+    def setUp(self):
+        self.test_yara_comment_enabled_class = YaraCommentEnabledClass()
+        self.raw = ""
+
+    def test_yara_comment_enabled_class_init(self):
+        self.assertIsInstance(
+            self.test_yara_comment_enabled_class.yara_comment, YaraComment
+        )
+
+    def test_add_comment(self):
+        self.test_yara_comment_enabled_class.add_comment("test1")
+        self.assertEqual(
+            self.test_yara_comment_enabled_class.yara_comment.inline, "test1"
+        )
+
+        self.test_yara_comment_enabled_class.add_comment("test2", position="above")
+        self.assertEqual(
+            self.test_yara_comment_enabled_class.yara_comment.above, "test2"
+        )
+
+        self.test_yara_comment_enabled_class.add_comment("test3", position="below")
+        self.assertEqual(
+            self.test_yara_comment_enabled_class.yara_comment.below, "test3"
+        )
+
+    def test_build_comment_above(self):
+        self.test_yara_comment_enabled_class.add_comment("test", position="above")
+        self.raw = self.test_yara_comment_enabled_class.build_comments(self.raw)
+        self.assertEqual(self.raw, "// test\n        ")
+
+    def test_build_comment_inline(self):
+        self.test_yara_comment_enabled_class.add_comment("test", position="inline")
+        self.raw = self.test_yara_comment_enabled_class.build_comments(self.raw)
+        self.assertEqual(self.raw, " // test")
+
+    def test_build_comment_below(self):
+        self.test_yara_comment_enabled_class.add_comment("test", position="below")
+        self.raw = self.test_yara_comment_enabled_class.build_comments(self.raw)
+        self.assertEqual(self.raw, "\n        // test")
 
 
 class TestYaraRule(unittest.TestCase):
@@ -161,12 +213,33 @@ class TestYaraImports(unittest.TestCase):
 
 
 class TestYaraString(unittest.TestCase):
-    def setUp(self):
-        self.yara_string = YaraString("test_value")
-
     def test_yara_string_constructor(self):
-        self.assertEqual(self.yara_string.value, "test_value")
-        self.assertEqual(self.yara_string.str_type, "text")
+        yara_string = YaraString("test_name", "test_value")
+        self.assertEqual(yara_string.name, "test_name")
+        self.assertEqual(yara_string.value, "test_value")
+        self.assertEqual(yara_string.str_type, "text")
+        self.assertFalse(yara_string.is_anonymous)
+
+    def test_build_string_text(self):
+        yara_string = YaraString("test_name", "test_value")
+        yara_string.build_string()
+        self.assertEqual(yara_string.raw_string, '$test_name = "test_value"')
+
+    def test_build_string_hex(self):
+        yara_string = YaraString("test_name", "AA BB CC DD", str_type="hex")
+        yara_string.build_string()
+        self.assertEqual(yara_string.raw_string, "$test_name = {AA BB CC DD}")
+
+    def test_build_string_regex(self):
+        yara_string = YaraString("test_name", "test[0-9]{2}", str_type="regex")
+        yara_string.build_string()
+        self.assertEqual(yara_string.raw_string, "$test_name = /test[0-9]{2}/")
+
+    def test_build_string_w_condition(self):
+        yara_string = YaraString("test_name", "test_value")
+        yara_string.modifiers = ["ascii", "wide"]
+        yara_string.build_string()
+        self.assertEqual(yara_string.raw_string, '$test_name = "test_value" ascii wide')
 
 
 class TestYaraStrings(unittest.TestCase):
@@ -184,7 +257,9 @@ class TestYaraStrings(unittest.TestCase):
         self.assertEqual(self.yara_strings.strings["test_name"].str_type, "text")
 
     def test_add_anonymous_string_invalid_str_type(self):
-        name = self.yara_strings.add_anonymous_string("test_value", str_type="invalid_type")
+        name = self.yara_strings.add_anonymous_string(
+            "test_value", str_type="invalid_type"
+        )
         self.assertEqual(self.yara_strings.strings[name].str_type, "text")
 
     def test_invalid_str_type_handler_valid_str_type(self):
@@ -352,6 +427,26 @@ class TestYaraMeta(unittest.TestCase):
 
 class TestYaraMetaEntry(unittest.TestCase):
     def test_yara_meta_entry_constructor(self):
-        yara_meta_entry = YaraMetaEntry("test_value", 0)
+        yara_meta_entry = YaraMetaEntry("test_name", "test_value", 0)
+        self.assertEqual(yara_meta_entry.name, "test_name")
         self.assertEqual(yara_meta_entry.value, "test_value")
         self.assertEqual(yara_meta_entry.position, 0)
+
+    def test_build_meta_entry_text(self):
+        yara_meta_entry = YaraMetaEntry("test_name", "test_value", 0)
+        yara_meta_entry.build_meta_entry()
+        self.assertEqual(yara_meta_entry.raw_meta_entry, 'test_name = "test_value"')
+
+    def test_build_meta_entry_int(self):
+        yara_meta_entry = YaraMetaEntry("test_name", 10, 0, meta_type="int")
+        yara_meta_entry.build_meta_entry()
+        self.assertEqual(yara_meta_entry.raw_meta_entry, "test_name = 10")
+
+    def test_build_meta_entry_bool(self):
+        yara_meta_entry = YaraMetaEntry("test_name", True, 0, meta_type="bool")
+        yara_meta_entry.build_meta_entry()
+        self.assertEqual(yara_meta_entry.raw_meta_entry, "test_name = true")
+
+        yara_meta_entry = YaraMetaEntry("test_name", False, 0, meta_type="bool")
+        yara_meta_entry.build_meta_entry()
+        self.assertEqual(yara_meta_entry.raw_meta_entry, "test_name = false")
