@@ -210,6 +210,7 @@ class YaraBuilder:
                          comment, position="inline", meta_entry=0):
         """
         Add a comment to a meta entry
+        
         Args:
             rule_name (str): the name of the rule to add the comment to
             meta_name (str): the name of the meta entry to add the comment to
