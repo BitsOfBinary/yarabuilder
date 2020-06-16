@@ -5,7 +5,7 @@ with open("README.rst", "r") as fh:
 
 setuptools.setup(
     name="yarabuilder",
-    version="0.0.1",
+    version="0.0.2",
     author="BitsOfBinary",
     description="A package to build YARA rules using Python",
     long_description=long_description,
