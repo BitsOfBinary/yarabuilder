@@ -87,6 +87,27 @@ class YaraComment:
         self.inline = None
         self.below = None
 
+    def get_yara_comment(self):
+        """
+        Method to return a structured POD version of YaraComment
+
+        Returns:
+            OrderedDict: the constructed YaraComment
+        """
+
+        yara_comment = {}
+
+        if self.above:
+            yara_comment["above"] = self.above
+
+        if self.inline:
+            yara_comment["inline"] = self.inline
+
+        if self.below:
+            yara_comment["below"] = self.below
+
+        return yara_comment
+
 
 class YaraMetaEntry(YaraCommentEnabledClass):
     """
@@ -138,6 +159,26 @@ class YaraMetaEntry(YaraCommentEnabledClass):
             self.raw_meta_entry, whitespace=whitespace
         )
 
+    def get_yara_meta_entry(self):
+        """
+        Method to return a structured POD version of YaraMetaEntry
+
+        Returns:
+            dict: the constructed YaraMetaEntry
+        """
+
+        meta_entry = {
+            "name": self.name,
+            "value": self.value,
+            "position": self.position,
+            "meta_type": self.meta_type,
+        }
+
+        if self.yara_comment:
+            meta_entry["comment"] = self.yara_comment.get_yara_comment()
+
+        return meta_entry
+
 
 class YaraMeta:
     """
@@ -170,6 +211,9 @@ class YaraMeta:
             name (str): the name of the meta entry
             value (str, int, bool): the meta entry
             meta_type (str, optional): the type of the meta entry (defaults to "text")
+
+        Returns:
+            int: the index into the list that this YaraMetaEntry was added into
         """
 
         if meta_type not in self.valid_meta_types:
@@ -186,6 +230,8 @@ class YaraMeta:
         )
 
         self.number_of_meta_entries += 1
+
+        return len(self.meta[name]) - 1
 
     def build_meta(self, whitespace="    "):
         """
@@ -204,6 +250,26 @@ class YaraMeta:
             for meta_entry in meta_entries:
                 meta_entry.build_meta_entry(whitespace=whitespace)
                 self.raw_meta[meta_entry.position] = meta_entry.raw_meta_entry
+
+    def get_yara_meta(self):
+        """
+        Method to return a structured POD version of YaraMeta
+
+        Returns:
+            OrderedDict: the constructed YaraMeta
+        """
+
+        yara_meta = collections.OrderedDict()
+
+        for name, meta_entry_list in self.meta.items():
+            yara_meta_entries = []
+
+            for meta_entry in meta_entry_list:
+                yara_meta_entries.append(meta_entry.get_yara_meta_entry())
+
+            yara_meta[name] = yara_meta_entries
+
+        return yara_meta
 
 
 class YaraString(YaraCommentEnabledClass):
@@ -263,6 +329,29 @@ class YaraString(YaraCommentEnabledClass):
                 self.raw_string += " %s" % modifier
 
         self.raw_string = self.build_comments(self.raw_string, whitespace=whitespace)
+
+    def get_yara_string(self):
+        """
+        Method to return a structured POD version of YaraString
+
+        Returns:
+            dict: the constructed YaraString
+        """
+
+        yara_string = {
+            "name": self.name,
+            "value": self.value,
+            "str_type": self.str_type,
+            "is_anonymous": self.is_anonymous,
+        }
+
+        if self.modifiers:
+            yara_string["modifiers"] = self.modifiers
+
+        if self.yara_comment:
+            yara_string["comment"] = self.yara_comment.get_yara_comment()
+
+        return yara_string
 
 
 class YaraStrings:
@@ -374,6 +463,22 @@ class YaraStrings:
             yara_string.build_string()
             self.raw_strings.append(yara_string.raw_string)
 
+    def get_yara_strings(self):
+        """
+        Method to return a structured POD version of YaraStrings
+
+        Returns:
+            OrderedDict: the constructed YaraStrings
+        """
+
+        yara_strings = collections.OrderedDict()
+
+        for name, yara_string in self.strings.items():
+            print(name)
+            yara_strings[name] = yara_string.get_yara_string()
+
+        return yara_strings
+
 
 class YaraCondition:
     """
@@ -400,6 +505,15 @@ class YaraCondition:
             raw_condition (str): the string representing the condition
         """
         self.raw_condition = raw_condition
+
+    def get_yara_condition(self):
+        """
+        Method to return a structured POD version of YaraCondition
+
+        Returns:
+            str: the constructed YaraCondition
+        """
+        return self.raw_condition
 
 
 class YaraImports:
@@ -447,6 +561,15 @@ class YaraImports:
         for import_str in self.imports:
             self.raw_imports += 'import "%s"\n' % import_str
 
+    def get_yara_imports(self):
+        """
+        Method to return a structured POD version of YaraImports
+
+        Returns:
+            list: the constructred YaraImports
+        """
+        return self.imports
+
 
 class YaraTags:
     """
@@ -490,6 +613,15 @@ class YaraTags:
         Build the tags into one string
         """
         self.raw_tags = " ".join(self.tags)
+
+    def get_yara_tags(self):
+        """
+        Method to return a structured POD version of YaraTags
+
+        Returns:
+            list: the constructed YaraTags
+        """
+        return self.tags
 
 
 class YaraRule:
@@ -639,6 +771,37 @@ class YaraRule:
 
         return self.raw_rule
 
+    def get_yara_rule(self):
+        """
+        Method to return a structured POD version of YaraRule
+
+        Returns:
+            dict: the constructed YaraRule
+        """
+
+        if not self.condition.raw_condition:
+            raise KeyError(
+                '"{0}" has no raw_condition, cannot get rule'.format(self.rule_name)
+            )
+
+        yara_rule = {}
+
+        if self.imports.imports:
+            yara_rule["imports"] = self.imports.get_yara_imports()
+
+        if self.tags.tags:
+            yara_rule["tags"] = self.tags.get_yara_tags()
+
+        if self.meta.number_of_meta_entries > 0:
+            yara_rule["meta"] = self.meta.get_yara_meta()
+
+        if self.strings.number_of_strings > 0:
+            yara_rule["strings"] = self.strings.get_yara_strings()
+
+        yara_rule["condition"] = self.condition.get_yara_condition()
+
+        return yara_rule
+
 
 def main():  # pragma: no cover
     """
@@ -666,6 +829,7 @@ def main():  # pragma: no cover
     rule.strings.add_string("test_string_hex", "AA BB CC DD", str_type="hex")
     rule.strings.add_string("test_string_regex", "[0-9]{10}", str_type="regex")
     print(rule.build_rule())
+    print(rule.get_yara_rule())
 
 
 if __name__ == "__main__":  # pragma: no cover

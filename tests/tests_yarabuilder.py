@@ -9,6 +9,7 @@ class TestYaraBuilder(unittest.TestCase):
     @unittest.mock.patch("yarabuilder.yararule.YaraRule")
     def setUp(self, mocked_yara_rule):
         mocked_yara_rule.build_rule = unittest.mock.MagicMock(return_value="")
+        mocked_yara_rule.get_yara_rule = unittest.mock.MagicMock(return_value="")
         self.yara_builder = YaraBuilder()
         self.yara_builder.yara_rules["test_rule"] = mocked_yara_rule
 
@@ -174,3 +175,11 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.build_rules()
         self.yara_builder.yara_rules["test_rule"].build_rule.assert_called_once()
         self.yara_builder.yara_rules["another_rule"].build_rule.assert_called_once()
+
+    @unittest.mock.patch("yarabuilder.yararule.YaraRule")
+    def test_get_yara_rules(self, mocked_yara_rule):
+        mocked_yara_rule.get_yara_rule = unittest.mock.MagicMock(return_value="")
+        self.yara_builder.yara_rules["another_rule"] = mocked_yara_rule
+        self.yara_builder.get_yara_rules()
+        self.yara_builder.yara_rules["test_rule"].get_yara_rule.assert_called_once()
+        self.yara_builder.yara_rules["another_rule"].get_yara_rule.assert_called_once()

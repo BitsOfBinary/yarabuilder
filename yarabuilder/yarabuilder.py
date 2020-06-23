@@ -206,11 +206,10 @@ class YaraBuilder:
 
         self.yara_rules[rule_name].condition.add_raw_condition(condition)
 
-    def add_meta_comment(self, rule_name, meta_name,
-                         comment, position="inline", meta_entry=0):
+    def add_meta_comment(self, rule_name, meta_name, comment, position="inline", meta_entry=0):
         """
         Add a comment to a meta entry
-        
+
         Args:
             rule_name (str): the name of the rule to add the comment to
             meta_name (str): the name of the meta entry to add the comment to
@@ -268,6 +267,19 @@ class YaraBuilder:
             built_rules.append(rule.build_rule())
 
         return "\n\n".join(built_rules)
+
+    def get_yara_rules(self):
+        """
+        Get POD versions of all YaraRules
+
+        Returns:
+            list: the constructred YaraRules
+        """
+
+        yara_rules = []
+
+        for rule in self.yara_rules.values():
+            yara_rules.append(rule.get_yara_rule())
 
 
 def main():  # pragma: no cover
