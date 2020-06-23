@@ -174,7 +174,7 @@ class YaraMetaEntry(YaraCommentEnabledClass):
             "meta_type": self.meta_type,
         }
 
-        if self.yara_comment:
+        if self.yara_comment.above or self.yara_comment.inline or self.yara_comment.below:
             meta_entry["comment"] = self.yara_comment.get_yara_comment()
 
         return meta_entry
@@ -348,7 +348,7 @@ class YaraString(YaraCommentEnabledClass):
         if self.modifiers:
             yara_string["modifiers"] = self.modifiers
 
-        if self.yara_comment:
+        if self.yara_comment.above or self.yara_comment.inline or self.yara_comment.below:
             yara_string["comment"] = self.yara_comment.get_yara_comment()
 
         return yara_string
@@ -474,7 +474,6 @@ class YaraStrings:
         yara_strings = collections.OrderedDict()
 
         for name, yara_string in self.strings.items():
-            print(name)
             yara_strings[name] = yara_string.get_yara_string()
 
         return yara_strings

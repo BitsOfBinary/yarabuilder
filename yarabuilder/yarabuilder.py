@@ -273,13 +273,15 @@ class YaraBuilder:
         Get POD versions of all YaraRules
 
         Returns:
-            list: the constructred YaraRules
+            list: the constructed YaraRules
         """
 
         yara_rules = []
 
         for rule in self.yara_rules.values():
             yara_rules.append(rule.get_yara_rule())
+
+        return yara_rules
 
 
 def main():  # pragma: no cover
