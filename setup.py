@@ -9,7 +9,7 @@ setuptools.setup(
     author="BitsOfBinary",
     description="A package to build YARA rules using Python",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    test_suite="tests",
     url="https://github.com/BitsOfBinary/yarabuilder",
     packages=setuptools.find_packages(exclude=['docs', 'tests']),
     classifiers=[
