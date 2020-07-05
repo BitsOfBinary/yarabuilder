@@ -183,3 +183,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.get_yara_rules()
         self.yara_builder.yara_rules["test_rule"].get_yara_rule.assert_called_once()
         self.yara_builder.yara_rules["another_rule"].get_yara_rule.assert_called_once()
+
+    def test_set_yara_rules(self):
+        self.yara_builder.set_yara_rules([{"rule_name": "test_rule_name", "condition": "any of them"}])
+        self.assertIn("test_rule_name", self.yara_builder.yara_rules)

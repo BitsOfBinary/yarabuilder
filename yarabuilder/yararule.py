@@ -108,6 +108,22 @@ class YaraComment:
 
         return yara_comment
 
+    def set_yara_comment(self, yara_comment):
+        """
+        Method to set the YaraComment from a dictionary
+
+        Args:
+            yara_comment (dict): the dictionary representing the comment
+        """
+        if "above" in yara_comment:
+            self.above = yara_comment["above"]
+
+        if "inline" in yara_comment:
+            self.inline = yara_comment["inline"]
+
+        if "below" in yara_comment:
+            self.below = yara_comment["below"]
+
 
 class YaraMetaEntry(YaraCommentEnabledClass):
     """
@@ -174,10 +190,35 @@ class YaraMetaEntry(YaraCommentEnabledClass):
             "meta_type": self.meta_type,
         }
 
-        if self.yara_comment.above or self.yara_comment.inline or self.yara_comment.below:
+        if (
+            self.yara_comment.above
+            or self.yara_comment.inline
+            or self.yara_comment.below
+        ):
             meta_entry["comment"] = self.yara_comment.get_yara_comment()
 
         return meta_entry
+
+    def set_yara_meta_entry(self, yara_meta_entry):
+        """
+        Method to set the YaraMetaEntry from a dictionary
+
+        Args:
+            yara_meta_entry (dict): the dictionary representing the meta entry
+        """
+
+        if not all(
+            k in yara_meta_entry for k in ("name", "value", "position", "meta_type")
+        ):
+            raise KeyError("Meta entry does not have the correct keys")
+
+        self.name = yara_meta_entry["name"]
+        self.value = yara_meta_entry["value"]
+        self.position = yara_meta_entry["position"]
+        self.meta_type = yara_meta_entry["meta_type"]
+
+        if "comment" in yara_meta_entry:
+            self.yara_comment.set_yara_comment(yara_meta_entry["comment"])
 
 
 class YaraMeta:
@@ -271,6 +312,25 @@ class YaraMeta:
 
         return yara_meta
 
+    def set_yara_meta(self, yara_meta):
+        """
+        Method to set the YaraMeta from a dictionary
+
+        Args:
+            yara_meta (dict): the dictionary representing the YaraMeta
+        """
+
+        for meta_entry_name, yara_meta_value in yara_meta.items():
+            if meta_entry_name not in self.meta:
+                self.meta[meta_entry_name] = []
+
+            for yara_meta_entry in yara_meta_value:
+
+                temp_yara_meta_entry = YaraMetaEntry(None, None, None)
+                temp_yara_meta_entry.set_yara_meta_entry(yara_meta_entry)
+
+                self.meta[meta_entry_name].append(temp_yara_meta_entry)
+
 
 class YaraString(YaraCommentEnabledClass):
     """
@@ -348,10 +408,38 @@ class YaraString(YaraCommentEnabledClass):
         if self.modifiers:
             yara_string["modifiers"] = self.modifiers
 
-        if self.yara_comment.above or self.yara_comment.inline or self.yara_comment.below:
+        if (
+            self.yara_comment.above
+            or self.yara_comment.inline
+            or self.yara_comment.below
+        ):
             yara_string["comment"] = self.yara_comment.get_yara_comment()
 
         return yara_string
+
+    def set_yara_string(self, yara_string):
+        """
+        Method to set the YaraString from a dictionary
+
+        Args:
+            yara_string (dict): the dictionary representing the YaraString
+        """
+
+        if not all(
+            k in yara_string for k in ("name", "value", "str_type", "is_anonymous")
+        ):
+            raise KeyError("String does not have the correct keys")
+
+        self.name = yara_string["name"]
+        self.value = yara_string["value"]
+        self.str_type = yara_string["str_type"]
+        self.is_anonymous = yara_string["is_anonymous"]
+
+        if "modifiers" in yara_string:
+            self.modifiers = yara_string["modifiers"]
+
+        if "comment" in yara_string:
+            self.yara_comment.set_yara_comment(yara_string["comment"])
 
 
 class YaraStrings:
@@ -478,6 +566,18 @@ class YaraStrings:
 
         return yara_strings
 
+    def set_yara_strings(self, yara_strings):
+        """
+        Method to set the YaraStrings from a dictionary
+
+        Args:
+            yara_strings (dict): a dictionary representing the YaraStrings
+        """
+
+        for yara_string_name, yara_string in yara_strings.items():
+            self.strings[yara_string_name] = YaraString(None, None)
+            self.strings[yara_string_name].set_yara_string(yara_string)
+
 
 class YaraCondition:
     """
@@ -513,6 +613,15 @@ class YaraCondition:
             str: the constructed YaraCondition
         """
         return self.raw_condition
+
+    def set_yara_condition(self, yara_condition):
+        """
+        Method to set the YaraCondition from a string
+
+        Args:
+            yara_condition (str): the string representing the YaraCondition
+        """
+        self.raw_condition = yara_condition
 
 
 class YaraImports:
@@ -569,6 +678,15 @@ class YaraImports:
         """
         return self.imports
 
+    def set_yara_imports(self, yara_imports):
+        """
+        Method to set the YaraImports from a list
+
+        Args:
+            yara_imports (list): the list representing the YaraImports
+        """
+        self.imports = yara_imports
+
 
 class YaraTags:
     """
@@ -621,6 +739,15 @@ class YaraTags:
             list: the constructed YaraTags
         """
         return self.tags
+
+    def set_yara_tags(self, yara_tags):
+        """
+        Method to set the YaraTags from a list
+
+        Args:
+            yara_tags (list): the list representing the YaraTags
+        """
+        self.tags = yara_tags
 
 
 class YaraRule:
@@ -783,7 +910,7 @@ class YaraRule:
                 '"{0}" has no raw_condition, cannot get rule'.format(self.rule_name)
             )
 
-        yara_rule = {}
+        yara_rule = {"rule_name": self.rule_name}
 
         if self.imports.imports:
             yara_rule["imports"] = self.imports.get_yara_imports()
@@ -800,6 +927,30 @@ class YaraRule:
         yara_rule["condition"] = self.condition.get_yara_condition()
 
         return yara_rule
+
+    def set_yara_rule(self, yara_rule):
+        """
+        Method to set the YaraRule from a dictionary
+
+        Args:
+            yara_rule (dict): the dictionary representing the YaraRule
+        """
+
+        self.rule_name = yara_rule["rule_name"]
+
+        if "imports" in yara_rule:
+            self.imports.set_yara_imports(yara_rule["imports"])
+
+        if "tags" in yara_rule:
+            self.tags.set_yara_tags(yara_rule["tags"])
+
+        if "meta" in yara_rule:
+            self.meta.set_yara_meta(yara_rule["meta"])
+
+        if "strings" in yara_rule:
+            self.strings.set_yara_strings(yara_rule["strings"])
+
+        self.condition.set_yara_condition(yara_rule["condition"])
 
 
 def main():  # pragma: no cover
