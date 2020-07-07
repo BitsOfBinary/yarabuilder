@@ -20,20 +20,20 @@ class YaraCommentEnabledClass:
 
     def add_comment(self, comment, position="inline"):
         """
-        Add a comment entry
+        Add a comment entry (appends to above and below, replaces inline)
 
         Args:
             comment (str): the comment
             position (str): the position of the comment relative to the entry
         """
         if position == "above":
-            self.yara_comment.above = comment
+            self.yara_comment.above.append(comment)
 
         elif position == "inline":
             self.yara_comment.inline = comment
 
         elif position == "below":
-            self.yara_comment.below = comment
+            self.yara_comment.below.append(comment)
 
     def build_comments(self, raw, whitespace="    "):
         """
@@ -47,23 +47,25 @@ class YaraCommentEnabledClass:
             str: the entry with comments built around it
         """
         if self.yara_comment.above:
-            raw = "// %s\n%s%s%s" % (
-                self.yara_comment.above,
-                whitespace,
-                whitespace,
-                raw,
-            )
+            for above_comment in reversed(self.yara_comment.above):
+                raw = "// %s\n%s%s%s" % (
+                    above_comment,
+                    whitespace,
+                    whitespace,
+                    raw,
+                )
 
         if self.yara_comment.inline:
             raw = "%s // %s" % (raw, self.yara_comment.inline)
 
         if self.yara_comment.below:
-            raw = "%s\n%s%s// %s" % (
-                raw,
-                whitespace,
-                whitespace,
-                self.yara_comment.below,
-            )
+            for below_comment in self.yara_comment.below:
+                raw = "%s\n%s%s// %s" % (
+                    raw,
+                    whitespace,
+                    whitespace,
+                    below_comment,
+                )
 
         return raw
 
@@ -74,18 +76,18 @@ class YaraComment:
     Can be applied to YaraMetaEntry and YaraString
 
     Attributes:
-        above (str): comment located a line above the entry
+        above (list): comment(s) located a line above the entry
         inline (str): comment located on the same line after the entry
-        below (str): comment located a line below the entry
+        below (list): comment(s) located a line below the entry
     """
 
     def __init__(self):
         """
         Constructor for YaraComment
         """
-        self.above = None
+        self.above = []
         self.inline = None
-        self.below = None
+        self.below = []
 
     def get_yara_comment(self):
         """

@@ -21,9 +21,9 @@ class TestYaraComment(unittest.TestCase):
         self.test_yara_comment = YaraComment()
 
     def test_yara_comment_init(self):
-        self.assertIsNone(self.test_yara_comment.above)
+        self.assertFalse(self.test_yara_comment.above)
         self.assertIsNone(self.test_yara_comment.inline)
-        self.assertIsNone(self.test_yara_comment.below)
+        self.assertFalse(self.test_yara_comment.below)
 
     def test_get_yara_comment(self):
         self.test_yara_comment.above = "above_comment"
@@ -61,12 +61,19 @@ class TestYaraCommentEnabledClass(unittest.TestCase):
 
         self.test_yara_comment_enabled_class.add_comment("test2", position="above")
         self.assertEqual(
-            self.test_yara_comment_enabled_class.yara_comment.above, "test2"
+            self.test_yara_comment_enabled_class.yara_comment.above, ["test2"]
         )
 
         self.test_yara_comment_enabled_class.add_comment("test3", position="below")
         self.assertEqual(
-            self.test_yara_comment_enabled_class.yara_comment.below, "test3"
+            self.test_yara_comment_enabled_class.yara_comment.below, ["test3"]
+        )
+
+    def test_add_multiple_comments(self):
+        self.test_yara_comment_enabled_class.add_comment("test1", position="above")
+        self.test_yara_comment_enabled_class.add_comment("test2", position="above")
+        self.assertEqual(
+            self.test_yara_comment_enabled_class.yara_comment.above, ["test1", "test2"]
         )
 
     def test_build_comment_above(self):
@@ -83,6 +90,18 @@ class TestYaraCommentEnabledClass(unittest.TestCase):
         self.test_yara_comment_enabled_class.add_comment("test", position="below")
         self.raw = self.test_yara_comment_enabled_class.build_comments(self.raw)
         self.assertEqual(self.raw, "\n        // test")
+
+    def test_build_multiple_above_comments(self):
+        self.test_yara_comment_enabled_class.add_comment("test1", position="above")
+        self.test_yara_comment_enabled_class.add_comment("test2", position="above")
+        self.raw = self.test_yara_comment_enabled_class.build_comments(self.raw)
+        self.assertEqual(self.raw, "// test1\n        // test2\n        ")
+
+    def test_build_multiple_below_comments(self):
+        self.test_yara_comment_enabled_class.add_comment("test1", position="below")
+        self.test_yara_comment_enabled_class.add_comment("test2", position="below")
+        self.raw = self.test_yara_comment_enabled_class.build_comments(self.raw)
+        self.assertEqual(self.raw, "\n        // test1\n        // test2")
 
 
 class TestYaraRule(unittest.TestCase):
