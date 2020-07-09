@@ -166,7 +166,7 @@ class YaraMetaEntry(YaraCommentEnabledClass):
         elif self.meta_type == "int":
             self.raw_meta_entry = "%s = %d" % (self.name, self.value)
 
-        if self.meta_type == "bool":
+        elif self.meta_type == "bool":
             if self.value:
                 self.raw_meta_entry = "%s = true" % self.name
 
@@ -236,7 +236,7 @@ class YaraMeta:
         logger (Logger): the logger for this class
     """
 
-    def __init__(self):
+    def __init__(self, logger=None):
         """
         Constructor for YaraMeta
         """
@@ -244,7 +244,7 @@ class YaraMeta:
         self.raw_meta = []
         self.number_of_meta_entries = 0
         self.valid_meta_types = ["text", "int", "bool"]
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger or logging.getLogger(__name__)
 
     def add_meta(self, name, value, meta_type="text"):
         """
@@ -785,11 +785,7 @@ class YaraRule:
         self.condition = YaraCondition()
         self.imports = YaraImports()
         self.tags = YaraTags()
-
-        if logger:
-            self.logger = logger
-        else:
-            self.logger = logging.getLogger(__name__)
+        self.logger = logger or logging.getLogger(__name__)
 
     def build_rule_header(self, rule):
         """
@@ -801,11 +797,16 @@ class YaraRule:
         Returns:
             str: string of the built rule with added rule header
         """
+
         if self.imports.has_imports():
+            self.logger.debug("Building imports for %s...", self.rule_name)
+
             self.imports.build_imports()
             rule += "%s\n" % self.imports.raw_imports
 
         if self.tags.has_tags():
+            self.logger.debug("Building tags for %s...", self.rule_name)
+
             self.tags.build_tags()
             rule += "rule %s : %s {\n" % (self.rule_name, self.tags.raw_tags)
         else:
@@ -887,14 +888,18 @@ class YaraRule:
                 '"{0}" has no raw_condition, cannot build rule'.format(self.rule_name)
             )
 
+        self.logger.debug("Building rule header for %s...", self.rule_name)
         self.raw_rule = self.build_rule_header(self.raw_rule)
 
         if self.meta.number_of_meta_entries > 0:
+            self.logger.debug("Building meta section for %s...", self.rule_name)
             self.raw_rule = self.build_rule_meta_section(self.raw_rule)
 
         if self.strings.number_of_strings > 0:
+            self.logger.debug("Building strings section for %s...", self.rule_name)
             self.raw_rule = self.build_rule_strings_section(self.raw_rule)
 
+        self.logger.debug("Building condition section for %s...", self.rule_name)
         self.raw_rule = self.build_rule_condition_section(self.raw_rule)
 
         return self.raw_rule

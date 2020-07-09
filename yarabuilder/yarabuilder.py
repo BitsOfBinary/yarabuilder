@@ -31,11 +31,7 @@ class YaraBuilder:
         """
         self.whitespace = whitespace
         self.yara_rules = collections.OrderedDict()
-
-        if logger:
-            self.logger = logger
-        else:
-            self.logger = logging.getLogger(__name__)
+        self.logger = logger or logging.getLogger(__name__)
 
     def _no_rule_name_exception_handler(self, rule_name):
         """
@@ -45,7 +41,7 @@ class YaraBuilder:
             rule_name (str): the rule_name to check if present in the YaraBuilder
         """
         if rule_name not in self.yara_rules:
-            raise KeyError('Rule  "{0}" doesn\'t exist'.format(rule_name))
+            raise KeyError('Rule "{0}" doesn\'t exist'.format(rule_name))
 
     def create_rule(self, rule_name):
         """
@@ -57,6 +53,7 @@ class YaraBuilder:
         if rule_name in self.yara_rules:
             raise KeyError('Rule with name "{0}" already exists'.format(rule_name))
 
+        self.logger.debug("Creating %s...", rule_name)
         self.yara_rules[rule_name] = YaraRule(rule_name, whitespace=self.whitespace)
 
     def add_tag(self, rule_name, tag):
@@ -94,21 +91,22 @@ class YaraBuilder:
         """
         self._no_rule_name_exception_handler(rule_name)
 
-        if meta_type:
-            self.yara_rules[rule_name].meta.add_meta(name, value, meta_type=meta_type)
+        if not meta_type:
+            if value is True or value is False:
+                meta_type = "bool"
 
-        elif value is True or value is False:
-            self.yara_rules[rule_name].meta.add_meta(name, value, meta_type="bool")
+            elif isinstance(value, int):
+                meta_type = "int"
 
-        elif isinstance(value, int):
-            self.yara_rules[rule_name].meta.add_meta(name, value, meta_type="int")
+            else:
+                meta_type = "text"
 
-        elif isinstance(value, str):
-            self.yara_rules[rule_name].meta.add_meta(name, value, meta_type="text")
+        self.logger.debug("Using meta_type %s", meta_type)
+        self.yara_rules[rule_name].meta.add_meta(name, value, meta_type=meta_type)
 
     def add_text_string(self, rule_name, value, name=None, modifiers=None):
         """
-        Add a text string (e.g. $ = "test") to the specified rule_name
+        Wrapper method to add a text string (e.g. $ = "test") to the specified rule_name
 
         Args:
             rule_name (str): the rule_name to add the string to
@@ -117,23 +115,11 @@ class YaraBuilder:
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
-        if modifiers is None:
-            modifiers = []
-        self._no_rule_name_exception_handler(rule_name)
-
-        if name:
-            self.yara_rules[rule_name].strings.add_string(name, value, str_type="text")
-
-        else:
-            name = self.yara_rules[rule_name].strings.add_anonymous_string(
-                value, str_type="text"
-            )
-
-        self._modifier_handler(rule_name, name, modifiers)
+        self._add_string(rule_name, value, "text", name=name, modifiers=modifiers)
 
     def add_hex_string(self, rule_name, value, name=None, modifiers=None):
         """
-        Add a hex string (e.g. $ = {DE AD BE EF}) to the specified rule_name
+        Wrapper method to add a hex string (e.g. $ = {DE AD BE EF}) to the specified rule_name
 
         Args:
             rule_name (str): the rule_name to add the string to
@@ -142,23 +128,11 @@ class YaraBuilder:
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
-        if modifiers is None:
-            modifiers = []
-        self._no_rule_name_exception_handler(rule_name)
-
-        if name:
-            self.yara_rules[rule_name].strings.add_string(name, value, str_type="hex")
-
-        else:
-            name = self.yara_rules[rule_name].strings.add_anonymous_string(
-                value, str_type="hex"
-            )
-
-        self._modifier_handler(rule_name, name, modifiers)
+        self._add_string(rule_name, value, "hex", name=name, modifiers=modifiers)
 
     def add_regex_string(self, rule_name, value, name=None, modifiers=None):
         """
-        Add a regex string (e.g. $ = /test[0-9]{2}/) to the specified rule_name
+        Wrapper method to add a regex string (e.g. $ = /test[0-9]{2}/) to the specified rule_name
 
         Args:
             rule_name (str): the rule_name to add the string to
@@ -167,16 +141,31 @@ class YaraBuilder:
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
+        self._add_string(rule_name, value, "regex", name=name, modifiers=modifiers)
+
+    def _add_string(self, rule_name, value, str_type, name=None, modifiers=None):
+        """
+        Generic method to add a string based on the wrapper method call
+
+        Args:
+            rule_name (str): the rule_name to add the string to
+            value (str): the string
+            str_type (str): the type of the string
+            name (str, optional): the name of the string
+                (if not provided will add as anonymous string):
+            modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
+        """
+
         if modifiers is None:
             modifiers = []
         self._no_rule_name_exception_handler(rule_name)
 
         if name:
-            self.yara_rules[rule_name].strings.add_string(name, value, str_type="regex")
+            self.yara_rules[rule_name].strings.add_string(name, value, str_type=str_type)
 
         else:
             self.yara_rules[rule_name].strings.add_anonymous_string(
-                value, str_type="regex"
+                value, str_type=str_type
             )
 
         self._modifier_handler(rule_name, name, modifiers)
@@ -266,6 +255,7 @@ class YaraBuilder:
         built_rules = []
 
         for rule in self.yara_rules.values():
+            self.logger.debug("Building %s...", rule.rule_name)
             built_rules.append(rule.build_rule())
 
         return "\n\n".join(built_rules)
@@ -281,6 +271,7 @@ class YaraBuilder:
         yara_rules = []
 
         for rule in self.yara_rules.values():
+            self.logger.debug("Getting %s...", rule.rule_name)
             yara_rules.append(rule.get_yara_rule())
 
         return yara_rules
@@ -294,6 +285,7 @@ class YaraBuilder:
         """
 
         for yara_rule in yara_rules:
+            self.logger.debug("Setting %s...", yara_rule["rule_name"])
             self.yara_rules[yara_rule["rule_name"]] = YaraRule(None)
             self.yara_rules[yara_rule["rule_name"]].set_yara_rule(yara_rule)
 
