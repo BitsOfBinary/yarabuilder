@@ -164,7 +164,7 @@ class YaraBuilder:
             self.yara_rules[rule_name].strings.add_string(name, value, str_type=str_type)
 
         else:
-            self.yara_rules[rule_name].strings.add_anonymous_string(
+            name = self.yara_rules[rule_name].strings.add_anonymous_string(
                 value, str_type=str_type
             )
 
