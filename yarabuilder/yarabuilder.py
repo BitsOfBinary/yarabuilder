@@ -161,7 +161,9 @@ class YaraBuilder:
         self._no_rule_name_exception_handler(rule_name)
 
         if name:
-            self.yara_rules[rule_name].strings.add_string(name, value, str_type=str_type)
+            self.yara_rules[rule_name].strings.add_string(
+                name, value, str_type=str_type
+            )
 
         else:
             name = self.yara_rules[rule_name].strings.add_anonymous_string(
@@ -245,14 +247,27 @@ class YaraBuilder:
 
         return self.yara_rules[rule_name].build_rule()
 
-    def build_rules(self):
+    def build_rules(self, imports_at_top=True):
         """
         Build all rules in the YaraBuilder object
+        
+        Args:
+            imports_at_top (bool): whether to collect all imports at the top of the rule, 
+                or to have them with each individual rule
 
         Returns:
             str: a text string of all built rules
         """
         built_rules = []
+
+        if imports_at_top:
+            first_rulename = list(self.yara_rules)[0]
+
+            for rule_name in list(self.yara_rules)[1:]:
+                for import_str in self.yara_rules[rule_name].imports.imports:
+                    self.add_import(first_rulename, import_str)
+
+                self.yara_rules[rule_name].imports.imports = []
 
         for rule in self.yara_rules.values():
             self.logger.debug("Building %s...", rule.rule_name)
