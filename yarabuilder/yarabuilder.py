@@ -128,6 +128,10 @@ class YaraBuilder:
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
+
+        if value.startswith("{") and value.endswith("}"):
+            value = value[1:-1]
+
         self._add_string(rule_name, value, "hex", name=name, modifiers=modifiers)
 
     def add_regex_string(self, rule_name, value, name=None, modifiers=None):
@@ -141,6 +145,10 @@ class YaraBuilder:
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
+
+        if value.startswith("/") and value.endswith("/"):
+            value = value[1:-1]
+
         self._add_string(rule_name, value, "regex", name=name, modifiers=modifiers)
 
     def _add_string(self, rule_name, value, str_type, name=None, modifiers=None):
@@ -250,9 +258,9 @@ class YaraBuilder:
     def build_rules(self, imports_at_top=True):
         """
         Build all rules in the YaraBuilder object
-        
+
         Args:
-            imports_at_top (bool): whether to collect all imports at the top of the rule, 
+            imports_at_top (bool): whether to collect all imports at the top of the rule,
                 or to have them with each individual rule
 
         Returns:

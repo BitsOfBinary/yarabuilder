@@ -97,6 +97,16 @@ class TestYaraBuilder(unittest.TestCase):
         ].strings.add_string.assert_called_once_with(
             "test_string_name", "AA BB CC DD", str_type="hex"
         )
+        
+    def test_add_hex_string_with_curly_brackets(self):
+        self.yara_builder.add_hex_string(
+            "test_rule", "{AA BB CC DD}", name="test_string_name"
+        )
+        self.yara_builder.yara_rules[
+            "test_rule"
+        ].strings.add_string.assert_called_once_with(
+            "test_string_name", "AA BB CC DD", str_type="hex"
+        )
 
     def test_add_hex_string_anonymous(self):
         self.yara_builder.add_hex_string("test_rule", "AA BB CC DD")
@@ -108,20 +118,30 @@ class TestYaraBuilder(unittest.TestCase):
 
     def test_add_regex_string(self):
         self.yara_builder.add_regex_string(
+            "test_rule", "test[0-9]{2}", name="test_string_name"
+        )
+        self.yara_builder.yara_rules[
+            "test_rule"
+        ].strings.add_string.assert_called_once_with(
+            "test_string_name", "test[0-9]{2}", str_type="regex"
+        )
+
+    def test_add_regex_string_anonymous(self):
+        self.yara_builder.add_regex_string("test_rule", "test[0-9]{2}")
+        self.yara_builder.yara_rules[
+            "test_rule"
+        ].strings.add_anonymous_string.assert_called_once_with(
+            "test[0-9]{2}", str_type="regex"
+        )
+        
+    def test_add_regex_string_with_forward_slashes(self):
+        self.yara_builder.add_regex_string(
             "test_rule", "/test[0-9]{2}/", name="test_string_name"
         )
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "/test[0-9]{2}/", str_type="regex"
-        )
-
-    def test_add_regex_string_anonymous(self):
-        self.yara_builder.add_regex_string("test_rule", "/test[0-9]{2}/")
-        self.yara_builder.yara_rules[
-            "test_rule"
-        ].strings.add_anonymous_string.assert_called_once_with(
-            "/test[0-9]{2}/", str_type="regex"
+            "test_string_name", "test[0-9]{2}", str_type="regex"
         )
 
     def test_modifier_handler(self):
