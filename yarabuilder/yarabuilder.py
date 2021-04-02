@@ -146,12 +146,27 @@ class YaraBuilder:
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
         """
 
+        regex_flags = None
+        valid_regex_flags = "gimsuy"
+
         if value.startswith("/") and value.endswith("/"):
             value = value[1:-1]
+            
+        elif value.startswith("/") and not value.endswith("/"):
+            potential_flags = value.split("/")[-1]
+            
+            for potential_flag in potential_flags:
+                if potential_flag not in valid_regex_flags:
+                    raise ValueError('Invalid regex flag: "{0}"'.format(potential_flag))
+                    
+            regex_flags = potential_flags
+            
+            value = "/".join(value.split("/")[:-1])[1:]
 
-        self._add_string(rule_name, value, "regex", name=name, modifiers=modifiers)
 
-    def _add_string(self, rule_name, value, str_type, name=None, modifiers=None):
+        self._add_string(rule_name, value, "regex", name=name, modifiers=modifiers, regex_flags=regex_flags)
+
+    def _add_string(self, rule_name, value, str_type, name=None, modifiers=None, regex_flags=None):
         """
         Generic method to add a string based on the wrapper method call
 
@@ -162,6 +177,7 @@ class YaraBuilder:
             name (str, optional): the name of the string
                 (if not provided will add as anonymous string):
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
+            regex_flags (str, optional): any regex flags to be applied to a regex string
         """
 
         if modifiers is None:
@@ -169,14 +185,26 @@ class YaraBuilder:
         self._no_rule_name_exception_handler(rule_name)
 
         if name:
-            self.yara_rules[rule_name].strings.add_string(
-                name, value, str_type=str_type
-            )
+            if regex_flags:
+                self.yara_rules[rule_name].strings.add_string(
+                    name, value, str_type=str_type, regex_flags=regex_flags
+                )
+                
+            else:
+                self.yara_rules[rule_name].strings.add_string(
+                    name, value, str_type=str_type,
+                )
 
         else:
-            name = self.yara_rules[rule_name].strings.add_anonymous_string(
-                value, str_type=str_type
-            )
+            if regex_flags:
+                name = self.yara_rules[rule_name].strings.add_anonymous_string(
+                    value, str_type=str_type, regex_flags=regex_flags
+                )
+                
+            else:
+                name = self.yara_rules[rule_name].strings.add_anonymous_string(
+                    value, str_type=str_type,
+                )
 
         self._modifier_handler(rule_name, name, modifiers)
 

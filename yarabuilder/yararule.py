@@ -345,7 +345,7 @@ class YaraString(YaraCommentEnabledClass):
         yara_comment (YaraComment): the comment associated with this entry
     """
 
-    def __init__(self, name, value, str_type="text", is_anonymous=False):
+    def __init__(self, name, value, str_type="text", is_anonymous=False, regex_flags=None):
         """
         Constructor for YaraString
 
@@ -353,6 +353,7 @@ class YaraString(YaraCommentEnabledClass):
             name (str): the name of the string
             value (str): the value of the string
             str_type (str, optional): the type of the string ("text", "hex", or "regex")
+            regex_flags(str, optional): any regex flags to be applied to a regex string
             is_anonymous (bool, optional): bool set to False by default
         """
         self.name = name
@@ -360,6 +361,7 @@ class YaraString(YaraCommentEnabledClass):
         self.str_type = str_type
         self.modifiers = []
         self.is_anonymous = is_anonymous
+        self.regex_flags = regex_flags
         self.raw_string = None
         self.yara_comment = YaraComment()
 
@@ -384,7 +386,10 @@ class YaraString(YaraCommentEnabledClass):
             self.raw_string += "{%s}" % self.value
 
         elif self.str_type == "regex":
-            self.raw_string += "/%s/" % self.value
+            if self.regex_flags:
+                self.raw_string += "/%s/%s" % (self.value, self.regex_flags)
+            else:
+                self.raw_string += "/%s/" % self.value
 
         if self.modifiers:
             for modifier in self.modifiers:
@@ -485,7 +490,7 @@ class YaraStrings:
 
         return str_type
 
-    def add_string(self, name, value, str_type="text"):
+    def add_string(self, name, value, str_type="text", regex_flags=None):
         """
         Add a named string to the YaraStrings object
 
@@ -493,22 +498,24 @@ class YaraStrings:
             name (str): name of the string
             value (str): the string
             str_type (str, optional): the type of the string ("text", "hex", "regex")
+            regex_flags (str, optional): any regex flags to be applied to a regex string
         """
         if name in self.strings:
             raise ValueError('String with name "{0}" already exists'.format(name))
 
         str_type = self._invalid_str_type_handler(str_type)
 
-        self.strings[name] = YaraString(name, value, str_type=str_type)
+        self.strings[name] = YaraString(name, value, str_type=str_type, regex_flags=regex_flags)
         self.number_of_strings += 1
 
-    def add_anonymous_string(self, value, str_type="text"):
+    def add_anonymous_string(self, value, str_type="text", regex_flags=None):
         """
         Add an anonymous string to the YaraStrings object
 
         Args:
             value (str): the string
             str_type (str, optional): the type of the string ("text", "hex", "regex")
+            regex_flags (str, optional): any regex flags to be applied to a regex string
 
         Returns:
             str: the generated name of the string for later handling
@@ -517,7 +524,7 @@ class YaraStrings:
 
         name = "@anon%d" % self.number_of_anonymous_strings
         self.strings[name] = YaraString(
-            name, value, str_type=str_type, is_anonymous=True
+            name, value, str_type=str_type, is_anonymous=True, regex_flags=regex_flags
         )
         self.number_of_strings += 1
         self.number_of_anonymous_strings += 1

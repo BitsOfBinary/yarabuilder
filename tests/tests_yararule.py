@@ -390,6 +390,11 @@ class TestYaraString(unittest.TestCase):
         yara_string = YaraString("test_name", "test[0-9]{2}", str_type="regex")
         yara_string.build_string()
         self.assertEqual(yara_string.raw_string, "$test_name = /test[0-9]{2}/")
+        
+    def test_build_string_regex_w_regex_flags(self):
+        yara_string = YaraString("test_name", "test[0-9]{2}", str_type="regex", regex_flags="i")
+        yara_string.build_string()
+        self.assertEqual(yara_string.raw_string, "$test_name = /test[0-9]{2}/i")
 
     def test_build_string_w_condition(self):
         yara_string = YaraString("test_name", "test_value")
@@ -558,6 +563,27 @@ class TestYaraStrings(unittest.TestCase):
                 "$ = /anon_test[0-9]{2}/",
                 "$test_name1 = /test_value\\d/ ascii wide",
                 "$test_name2 = /test_value\\D/ nocase",
+            ],
+        )
+        
+    def test_build_regex_strings_w_regex_flag(self):
+        self.yara_strings.add_anonymous_string("anon_test[0-9]{2}", str_type="regex", regex_flags="i")
+
+        self.yara_strings.add_string("test_name1", "test_value\\d", str_type="regex", regex_flags="s")
+        self.yara_strings.add_modifier("test_name1", "ascii")
+        self.yara_strings.add_modifier("test_name1", "wide")
+        
+        self.yara_strings.add_string("test_name2", "test_value\\D", str_type="regex", regex_flags="is")
+        self.yara_strings.add_modifier("test_name2", "nocase")
+
+        self.yara_strings.build_strings()
+
+        self.assertEqual(
+            self.yara_strings.raw_strings,
+            [
+                "$ = /anon_test[0-9]{2}/i",
+                "$test_name1 = /test_value\\d/s ascii wide",
+                "$test_name2 = /test_value\\D/is nocase",
             ],
         )
 

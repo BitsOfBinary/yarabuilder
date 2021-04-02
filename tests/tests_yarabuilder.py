@@ -143,6 +143,35 @@ class TestYaraBuilder(unittest.TestCase):
         ].strings.add_string.assert_called_once_with(
             "test_string_name", "test[0-9]{2}", str_type="regex"
         )
+        
+    def test_add_regex_string_with_regex_flags(self):
+        self.yara_builder.add_regex_string(
+            "test_rule", "/test[0-9]{2}/i", name="test_string_name"
+        )
+        self.yara_builder.yara_rules[
+            "test_rule"
+        ].strings.add_string.assert_called_once_with(
+            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags="i"
+        )
+        
+    def test_add_anonymous_regex_string_with_regex_flags(self):
+        self.yara_builder.add_regex_string(
+            "test_rule", "/test[0-9]{2}/i"
+        )
+        self.yara_builder.yara_rules[
+            "test_rule"
+        ].strings.add_anonymous_string.assert_called_once_with(
+            "test[0-9]{2}", str_type="regex", regex_flags="i"
+        )
+        
+    def test_raises_error_incorrect_regex_flag(self):
+        self.assertRaises(
+            ValueError,
+            self.yara_builder.add_regex_string,
+            "test_rule",
+            "/test[0-9]{2}/z",
+            name="test_string_name"
+        )
 
     def test_modifier_handler(self):
         self.yara_builder.add_text_string(
