@@ -48,24 +48,14 @@ class YaraCommentEnabledClass:
         """
         if self.yara_comment.above:
             for above_comment in reversed(self.yara_comment.above):
-                raw = "// %s\n%s%s%s" % (
-                    above_comment,
-                    whitespace,
-                    whitespace,
-                    raw,
-                )
+                raw = "// %s\n%s%s%s" % (above_comment, whitespace, whitespace, raw,)
 
         if self.yara_comment.inline:
             raw = "%s // %s" % (raw, self.yara_comment.inline)
 
         if self.yara_comment.below:
             for below_comment in self.yara_comment.below:
-                raw = "%s\n%s%s// %s" % (
-                    raw,
-                    whitespace,
-                    whitespace,
-                    below_comment,
-                )
+                raw = "%s\n%s%s// %s" % (raw, whitespace, whitespace, below_comment,)
 
         return raw
 
@@ -345,7 +335,9 @@ class YaraString(YaraCommentEnabledClass):
         yara_comment (YaraComment): the comment associated with this entry
     """
 
-    def __init__(self, name, value, str_type="text", is_anonymous=False, regex_flags=None):
+    def __init__(
+        self, name, value, str_type="text", is_anonymous=False, regex_flags=None
+    ):
         """
         Constructor for YaraString
 
@@ -414,7 +406,7 @@ class YaraString(YaraCommentEnabledClass):
 
         if self.modifiers:
             yara_string["modifiers"] = self.modifiers
-            
+
         if self.regex_flags:
             yara_string["regex_flags"] = self.regex_flags
 
@@ -450,7 +442,7 @@ class YaraString(YaraCommentEnabledClass):
 
         if "comment" in yara_string:
             self.yara_comment.set_yara_comment(yara_string["comment"])
-            
+
         if "regex_flags" in yara_string:
             self.regex_flags = yara_string["regex_flags"]
 
@@ -511,7 +503,9 @@ class YaraStrings:
 
         str_type = self._invalid_str_type_handler(str_type)
 
-        self.strings[name] = YaraString(name, value, str_type=str_type, regex_flags=regex_flags)
+        self.strings[name] = YaraString(
+            name, value, str_type=str_type, regex_flags=regex_flags
+        )
         self.number_of_strings += 1
 
     def add_anonymous_string(self, value, str_type="text", regex_flags=None):
@@ -563,7 +557,7 @@ class YaraStrings:
         Build each string object
         """
         self.raw_strings = []
-        
+
         for yara_string in self.strings.values():
             yara_string.build_string()
             self.raw_strings.append(yara_string.raw_string)
@@ -684,7 +678,7 @@ class YaraImports:
         Build the imports section into one string
         """
         self.raw_imports = ""
-        
+
         for import_str in self.imports:
             self.raw_imports += 'import "%s"\n' % import_str
 
@@ -904,7 +898,7 @@ class YaraRule:
             raise KeyError(
                 '"{0}" has no raw_condition, cannot build rule'.format(self.rule_name)
             )
-            
+
         self.raw_rule = ""
 
         self.logger.debug("Building rule header for %s...", self.rule_name)
