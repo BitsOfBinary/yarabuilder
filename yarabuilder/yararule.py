@@ -414,6 +414,9 @@ class YaraString(YaraCommentEnabledClass):
 
         if self.modifiers:
             yara_string["modifiers"] = self.modifiers
+            
+        if self.regex_flags:
+            yara_string["regex_flags"] = self.regex_flags
 
         if (
             self.yara_comment.above
@@ -447,6 +450,9 @@ class YaraString(YaraCommentEnabledClass):
 
         if "comment" in yara_string:
             self.yara_comment.set_yara_comment(yara_string["comment"])
+            
+        if "regex_flags" in yara_string:
+            self.regex_flags = yara_string["regex_flags"]
 
 
 class YaraStrings:

@@ -412,6 +412,13 @@ class TestYaraString(unittest.TestCase):
         self.assertEqual(pod_yara_string["value"], "test_value")
         self.assertEqual(pod_yara_string["modifiers"], ["ascii", "wide"])
         self.assertEqual(pod_yara_string["comment"]["inline"], "test_comment")
+        
+    def test_get_yara_string_with_regex_flags(self):
+        yara_string = YaraString("test_name", "test_regex", regex_flags="i")
+        pod_yara_string = yara_string.get_yara_string()
+        self.assertEqual(pod_yara_string["name"], "test_name")
+        self.assertEqual(pod_yara_string["value"], "test_regex")
+        self.assertEqual(pod_yara_string["regex_flags"], "i")
 
     def test_set_yara_string(self):
         yara_string = YaraString(None, None)
@@ -431,6 +438,23 @@ class TestYaraString(unittest.TestCase):
         self.assertEqual(yara_string.name, "str")
         self.assertEqual(yara_string.str_type, "text")
         self.assertEqual(yara_string.value, "Named string")
+        
+    def test_set_yara_regex_string_with_flags(self):
+        yara_string = YaraString(None, None)
+        yara_string.set_yara_string(
+            {
+                "is_anonymous": False,
+                "name": "str",
+                "str_type": "regex",
+                "value": "test regex",
+                "regex_flags": "i"
+            }
+        )
+        self.assertEqual(yara_string.is_anonymous, False)
+        self.assertEqual(yara_string.name, "str")
+        self.assertEqual(yara_string.str_type, "regex")
+        self.assertEqual(yara_string.value, "test regex")
+        self.assertEqual(yara_string.regex_flags, "i")
 
     def test_set_yara_string_invalid_keys(self):
         yara_string = YaraString(None, None)
