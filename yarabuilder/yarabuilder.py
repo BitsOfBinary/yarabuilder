@@ -5,6 +5,7 @@ The main interface to work with YaraRule objects
 import logging
 import collections
 
+
 from yarabuilder.yararule import YaraRule
 
 
@@ -111,7 +112,7 @@ class YaraBuilder:
             else:
                 meta_type = "text"
 
-        self.logger.debug("Using meta_type %s", meta_type)
+        self.logger.debug("Using meta_type %s for %s", meta_type, str(value))
         self.yara_rules[rule_name].meta.add_meta(name, value, meta_type=meta_type)
 
     def add_text_string(self, rule_name, value, name=None, modifiers=None):
@@ -352,7 +353,17 @@ def main():  # pragma: no cover
     Method to test if running the module from the command line
     """
 
-    yara_builder = YaraBuilder()
+    logger = logging.getLogger("yarabuilder_logger")
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    yara_builder = YaraBuilder(logger=logger)
 
     yara_builder.create_rule("test_rule1")
     yara_builder.add_meta("test_rule1", "test_name", "test_value")

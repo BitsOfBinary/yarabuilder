@@ -977,7 +977,18 @@ def main():  # pragma: no cover
     """
     Method to test if running the module from the command line
     """
-    rule = YaraRule("command_line_rule")
+    
+    logger = logging.getLogger("yararule_logger")
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
+    rule = YaraRule("command_line_rule", logger=logger)
     rule.condition.add_raw_condition("filesize > 0")
     rule.tags.add_tag("test1")
     rule.tags.add_tag("test2")
