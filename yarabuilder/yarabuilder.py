@@ -42,6 +42,16 @@ class YaraBuilder:
         """
         if rule_name not in self.yara_rules:
             raise KeyError('Rule "{0}" doesn\'t exist'.format(rule_name))
+            
+    def get_yara_rule_names(self):
+        """
+        Method to return all Yara rule names in a YaraBuilder object
+        
+        Returns:
+            list: list of strings of the Yara rule names
+        """
+        
+        return list(self.yara_rules.keys())
 
     def create_rule(self, rule_name):
         """

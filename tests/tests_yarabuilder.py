@@ -245,3 +245,10 @@ class TestYaraBuilder(unittest.TestCase):
     def test_set_yara_rules(self):
         self.yara_builder.set_yara_rules([{"rule_name": "test_rule_name", "condition": "any of them"}])
         self.assertIn("test_rule_name", self.yara_builder.yara_rules)
+        
+    @unittest.mock.patch("yarabuilder.yararule.YaraRule")
+    def test_get_yara_rule_names(self, mocked_yara_rule):
+        self.yara_builder.yara_rules["another_rule"] = mocked_yara_rule
+        rule_names = self.yara_builder.get_yara_rule_names()
+        self.assertEqual(rule_names, ["test_rule", "another_rule"])
+        
