@@ -300,10 +300,10 @@ class YaraBuilder:
             first_rulename = list(self.yara_rules)[0]
 
             for rule_name in list(self.yara_rules)[1:]:
-                for import_str in self.yara_rules[rule_name].imports.imports:
+                for import_str in self.yara_rules[rule_name].imports.get_yara_imports():
                     self.add_import(first_rulename, import_str)
 
-                self.yara_rules[rule_name].imports.imports = []
+                self.yara_rules[rule_name].imports.set_yara_imports([])
 
         for rule in self.yara_rules.values():
             self.logger.debug("Building %s...", rule.rule_name)

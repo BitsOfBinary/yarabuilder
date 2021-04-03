@@ -224,6 +224,15 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.build_rules()
         self.yara_builder.yara_rules["test_rule"].build_rule.assert_called_once()
         self.yara_builder.yara_rules["another_rule"].build_rule.assert_called_once()
+       
+    @unittest.mock.patch("yarabuilder.yararule.YaraRule")
+    def test_build_rules_imports_at_top(self, mocked_yara_rule):
+        mocked_yara_rule.build_rule = unittest.mock.MagicMock(return_value="")
+        mocked_yara_rule.imports.get_yara_imports = unittest.mock.MagicMock(return_value=["pe"])
+        self.yara_builder.yara_rules["another_rule"] = mocked_yara_rule
+        self.yara_builder.build_rules(imports_at_top=True)
+        self.yara_builder.yara_rules["test_rule"].imports.add_import.assert_called_once_with("pe")
+        self.yara_builder.yara_rules["another_rule"].imports.set_yara_imports.assert_called_once_with([])
 
     @unittest.mock.patch("yarabuilder.yararule.YaraRule")
     def test_get_yara_rules(self, mocked_yara_rule):
