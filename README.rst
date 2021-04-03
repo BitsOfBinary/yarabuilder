@@ -19,7 +19,8 @@ yarabuilder requires Python 3+::
     
 Usage
 -----
-
+Creating and printing a rule
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. code-block:: python
 
     >>> import yarabuilder
@@ -58,6 +59,11 @@ Usage
             any of them
     }
     >>>
+
+Converting a YaraBuilder object to lists and dictionaries (and back again)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. code-block:: python
+
     >>> dict_yara_rules = yara_builder.get_yara_rules()
     >>> pprint.pprint(dict_yara_rules)
     [{'condition': 'any of them',
