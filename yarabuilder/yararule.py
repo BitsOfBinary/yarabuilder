@@ -562,6 +562,8 @@ class YaraStrings:
         """
         Build each string object
         """
+        self.raw_strings = []
+        
         for yara_string in self.strings.values():
             yara_string.build_string()
             self.raw_strings.append(yara_string.raw_string)
@@ -681,6 +683,8 @@ class YaraImports:
         """
         Build the imports section into one string
         """
+        self.raw_imports = ""
+        
         for import_str in self.imports:
             self.raw_imports += 'import "%s"\n' % import_str
 
@@ -900,6 +904,8 @@ class YaraRule:
             raise KeyError(
                 '"{0}" has no raw_condition, cannot build rule'.format(self.rule_name)
             )
+            
+        self.raw_rule = ""
 
         self.logger.debug("Building rule header for %s...", self.rule_name)
         self.raw_rule = self.build_rule_header(self.raw_rule)
