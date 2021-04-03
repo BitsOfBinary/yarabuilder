@@ -185,26 +185,14 @@ class YaraBuilder:
         self._no_rule_name_exception_handler(rule_name)
 
         if name:
-            if regex_flags:
-                self.yara_rules[rule_name].strings.add_string(
-                    name, value, str_type=str_type, regex_flags=regex_flags
-                )
-                
-            else:
-                self.yara_rules[rule_name].strings.add_string(
-                    name, value, str_type=str_type,
-                )
+            self.yara_rules[rule_name].strings.add_string(
+                name, value, str_type=str_type, regex_flags=regex_flags
+            )
 
         else:
-            if regex_flags:
-                name = self.yara_rules[rule_name].strings.add_anonymous_string(
-                    value, str_type=str_type, regex_flags=regex_flags
-                )
-                
-            else:
-                name = self.yara_rules[rule_name].strings.add_anonymous_string(
-                    value, str_type=str_type,
-                )
+            name = self.yara_rules[rule_name].strings.add_anonymous_string(
+                value, str_type=str_type, regex_flags=regex_flags
+            )
 
         self._modifier_handler(rule_name, name, modifiers)
 
