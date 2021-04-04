@@ -115,7 +115,9 @@ class YaraBuilder:
         self.logger.debug("Using meta_type %s for %s", meta_type, str(value))
         self.yara_rules[rule_name].meta.add_meta(name, value, meta_type=meta_type)
 
-    def add_text_string(self, rule_name, value, name=None, modifiers=None):
+    def add_text_string(
+        self, rule_name, value, name=None, modifiers=None, newline_after=False
+    ):
         """
         Wrapper method to add a text string (e.g. $ = "test") to the specified rule_name
 
@@ -125,10 +127,13 @@ class YaraBuilder:
             name (str, optional): the optional name of the string
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
         """
         self._add_string(rule_name, value, "text", name=name, modifiers=modifiers)
 
-    def add_hex_string(self, rule_name, value, name=None, modifiers=None):
+    def add_hex_string(
+        self, rule_name, value, name=None, modifiers=None, newline_after=False
+    ):
         """
         Wrapper method to add a hex string (e.g. $ = {DE AD BE EF}) to the specified rule_name
 
@@ -138,6 +143,7 @@ class YaraBuilder:
             name (str, optional): the name of the string
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
         """
 
         if value.startswith("{") and value.endswith("}"):
@@ -145,7 +151,9 @@ class YaraBuilder:
 
         self._add_string(rule_name, value, "hex", name=name, modifiers=modifiers)
 
-    def add_regex_string(self, rule_name, value, name=None, modifiers=None):
+    def add_regex_string(
+        self, rule_name, value, name=None, modifiers=None, newline_after=False
+    ):
         """
         Wrapper method to add a regex string (e.g. $ = /test[0-9]{2}/) to the specified rule_name
 
@@ -155,6 +163,7 @@ class YaraBuilder:
             name (str, optional): the name of the string
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
         """
 
         regex_flags = None
@@ -184,7 +193,14 @@ class YaraBuilder:
         )
 
     def _add_string(
-        self, rule_name, value, str_type, name=None, modifiers=None, regex_flags=None
+        self,
+        rule_name,
+        value,
+        str_type,
+        name=None,
+        modifiers=None,
+        regex_flags=None,
+        newline_after=False,
     ):
         """
         Generic method to add a string based on the wrapper method call
@@ -197,6 +213,7 @@ class YaraBuilder:
                 (if not provided will add as anonymous string):
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
             regex_flags (str, optional): any regex flags to be applied to a regex string
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
         """
 
         if modifiers is None:
@@ -205,12 +222,19 @@ class YaraBuilder:
 
         if name:
             self.yara_rules[rule_name].strings.add_string(
-                name, value, str_type=str_type, regex_flags=regex_flags
+                name,
+                value,
+                str_type=str_type,
+                regex_flags=regex_flags,
+                newline_after=newline_after,
             )
 
         else:
             name = self.yara_rules[rule_name].strings.add_anonymous_string(
-                value, str_type=str_type, regex_flags=regex_flags
+                value,
+                str_type=str_type,
+                regex_flags=regex_flags,
+                newline_after=newline_after,
             )
 
         self._modifier_handler(rule_name, name, modifiers)

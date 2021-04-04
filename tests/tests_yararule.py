@@ -424,6 +424,11 @@ class TestYaraString(unittest.TestCase):
         yara_string.modifiers = ["ascii", "wide"]
         yara_string.build_string()
         self.assertEqual(yara_string.raw_string, '$test_name = "test_value" ascii wide')
+        
+    def test_build_string_w_newline_after(self):
+        yara_string = YaraString("test_name", "test_value", newline_after = True)
+        yara_string.build_string()
+        self.assertEqual(yara_string.raw_string, '$test_name = "test_value"\n')
 
     def test_get_yara_string(self):
         yara_string = YaraString("test_name", "test_value")
@@ -631,6 +636,24 @@ class TestYaraStrings(unittest.TestCase):
                 "$ = /anon_test[0-9]{2}/i",
                 "$test_name1 = /test_value\\d/s ascii wide",
                 "$test_name2 = /test_value\\D/is nocase",
+            ],
+        )
+        
+    def test_build_strings_with_newline_after(self):
+        self.yara_strings.add_string("test_name1", "test_value1", newline_after=True)
+        self.yara_strings.add_modifier("test_name1", "ascii")
+        self.yara_strings.add_modifier("test_name1", "wide")
+
+        self.yara_strings.add_string("test_name2", "test_value2")
+        self.yara_strings.add_modifier("test_name2", "nocase")
+
+        self.yara_strings.build_strings()
+
+        self.assertEqual(
+            self.yara_strings.raw_strings,
+            [
+                '$test_name1 = "test_value1" ascii wide\n',
+                '$test_name2 = "test_value2" nocase',
             ],
         )
 

@@ -77,7 +77,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "test_text_string", str_type="text", regex_flags=None
+            "test_string_name", "test_text_string", str_type="text", regex_flags=None, newline_after=False
         )
 
     def test_add_text_string_anonymous(self):
@@ -85,7 +85,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_anonymous_string.assert_called_once_with(
-            "test_text_string", str_type="text", regex_flags=None
+            "test_text_string", str_type="text", regex_flags=None, newline_after=False
         )
 
     def test_add_hex_string(self):
@@ -95,7 +95,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "AA BB CC DD", str_type="hex", regex_flags=None
+            "test_string_name", "AA BB CC DD", str_type="hex", regex_flags=None, newline_after=False
         )
         
     def test_add_hex_string_with_curly_brackets(self):
@@ -105,7 +105,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "AA BB CC DD", str_type="hex", regex_flags=None
+            "test_string_name", "AA BB CC DD", str_type="hex", regex_flags=None, newline_after=False
         )
 
     def test_add_hex_string_anonymous(self):
@@ -113,7 +113,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_anonymous_string.assert_called_once_with(
-            "AA BB CC DD", str_type="hex", regex_flags=None
+            "AA BB CC DD", str_type="hex", regex_flags=None, newline_after=False
         )
 
     def test_add_regex_string(self):
@@ -123,7 +123,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags=None
+            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags=None, newline_after=False
         )
 
     def test_add_regex_string_anonymous(self):
@@ -131,7 +131,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_anonymous_string.assert_called_once_with(
-            "test[0-9]{2}", str_type="regex", regex_flags=None
+            "test[0-9]{2}", str_type="regex", regex_flags=None, newline_after=False
         )
         
     def test_add_regex_string_with_forward_slashes(self):
@@ -141,7 +141,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags=None
+            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags=None, newline_after=False
         )
         
     def test_add_regex_string_with_regex_flags(self):
@@ -151,7 +151,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_string.assert_called_once_with(
-            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags="i"
+            "test_string_name", "test[0-9]{2}", str_type="regex", regex_flags="i", newline_after=False
         )
         
     def test_add_anonymous_regex_string_with_regex_flags(self):
@@ -161,7 +161,7 @@ class TestYaraBuilder(unittest.TestCase):
         self.yara_builder.yara_rules[
             "test_rule"
         ].strings.add_anonymous_string.assert_called_once_with(
-            "test[0-9]{2}", str_type="regex", regex_flags="i"
+            "test[0-9]{2}", str_type="regex", regex_flags="i", newline_after=False
         )
         
     def test_raises_error_incorrect_regex_flag(self):

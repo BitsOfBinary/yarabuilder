@@ -336,7 +336,13 @@ class YaraString(YaraCommentEnabledClass):
     """
 
     def __init__(
-        self, name, value, str_type="text", is_anonymous=False, regex_flags=None
+        self,
+        name,
+        value,
+        str_type="text",
+        is_anonymous=False,
+        regex_flags=None,
+        newline_after=False,
     ):
         """
         Constructor for YaraString
@@ -347,6 +353,7 @@ class YaraString(YaraCommentEnabledClass):
             str_type (str, optional): the type of the string ("text", "hex", or "regex")
             regex_flags(str, optional): any regex flags to be applied to a regex string
             is_anonymous (bool, optional): bool set to False by default
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
         """
         self.name = name
         self.value = value
@@ -354,6 +361,7 @@ class YaraString(YaraCommentEnabledClass):
         self.modifiers = []
         self.is_anonymous = is_anonymous
         self.regex_flags = regex_flags
+        self.newline_after = newline_after
         self.raw_string = None
         self.yara_comment = YaraComment()
 
@@ -388,6 +396,9 @@ class YaraString(YaraCommentEnabledClass):
                 self.raw_string += " %s" % modifier
 
         self.raw_string = self.build_comments(self.raw_string, whitespace=whitespace)
+
+        if self.newline_after:
+            self.raw_string += "\n"
 
     def get_yara_string(self):
         """
@@ -488,7 +499,9 @@ class YaraStrings:
 
         return str_type
 
-    def add_string(self, name, value, str_type="text", regex_flags=None):
+    def add_string(
+        self, name, value, str_type="text", regex_flags=None, newline_after=False
+    ):
         """
         Add a named string to the YaraStrings object
 
@@ -497,6 +510,7 @@ class YaraStrings:
             value (str): the string
             str_type (str, optional): the type of the string ("text", "hex", "regex")
             regex_flags (str, optional): any regex flags to be applied to a regex string
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
         """
         if name in self.strings:
             raise ValueError('String with name "{0}" already exists'.format(name))
@@ -504,11 +518,17 @@ class YaraStrings:
         str_type = self._invalid_str_type_handler(str_type)
 
         self.strings[name] = YaraString(
-            name, value, str_type=str_type, regex_flags=regex_flags
+            name,
+            value,
+            str_type=str_type,
+            regex_flags=regex_flags,
+            newline_after=newline_after,
         )
         self.number_of_strings += 1
 
-    def add_anonymous_string(self, value, str_type="text", regex_flags=None):
+    def add_anonymous_string(
+        self, value, str_type="text", regex_flags=None, newline_after=False
+    ):
         """
         Add an anonymous string to the YaraStrings object
 
@@ -516,6 +536,7 @@ class YaraStrings:
             value (str): the string
             str_type (str, optional): the type of the string ("text", "hex", "regex")
             regex_flags (str, optional): any regex flags to be applied to a regex string
+            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
 
         Returns:
             str: the generated name of the string for later handling
@@ -524,7 +545,12 @@ class YaraStrings:
 
         name = "@anon%d" % self.number_of_anonymous_strings
         self.strings[name] = YaraString(
-            name, value, str_type=str_type, is_anonymous=True, regex_flags=regex_flags
+            name,
+            value,
+            str_type=str_type,
+            is_anonymous=True,
+            regex_flags=regex_flags,
+            newline_after=newline_after,
         )
         self.number_of_strings += 1
         self.number_of_anonymous_strings += 1
@@ -977,7 +1003,7 @@ def main():  # pragma: no cover
     """
     Method to test if running the module from the command line
     """
-    
+
     logger = logging.getLogger("yararule_logger")
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
@@ -987,7 +1013,7 @@ def main():  # pragma: no cover
     formatter = logging.Formatter("%(levelname)s:%(name)s:%(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    
+
     rule = YaraRule("command_line_rule", logger=logger)
     rule.condition.add_raw_condition("filesize > 0")
     rule.tags.add_tag("test1")
@@ -998,7 +1024,7 @@ def main():  # pragma: no cover
     rule.meta.add_meta("test_meta", "test2")
     rule.meta.meta["test_meta"][0].add_comment("hi", position="above")
     rule.meta.meta["test_meta"][1].add_comment("there", position="above")
-    rule.strings.add_string("test_string_text", "string_text_val")
+    rule.strings.add_string("test_string_text", "string_text_val", newline_after=True)
     rule.strings.add_modifier("test_string_text", "ascii")
     rule.strings.strings["test_string_text"].add_comment("above comment")
     rule.strings.strings["test_string_text"].add_comment(
