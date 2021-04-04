@@ -353,7 +353,8 @@ class YaraString(YaraCommentEnabledClass):
             str_type (str, optional): the type of the string ("text", "hex", or "regex")
             regex_flags(str, optional): any regex flags to be applied to a regex string
             is_anonymous (bool, optional): bool set to False by default
-            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
+            newline_after (bool, optional): bool to determine if there should
+                be an extra newline after the string
         """
         self.name = name
         self.value = value
@@ -510,7 +511,8 @@ class YaraStrings:
             value (str): the string
             str_type (str, optional): the type of the string ("text", "hex", "regex")
             regex_flags (str, optional): any regex flags to be applied to a regex string
-            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
+            newline_after (bool, optional): bool to determine if there should
+                be an extra newline after the string
         """
         if name in self.strings:
             raise ValueError('String with name "{0}" already exists'.format(name))
@@ -536,7 +538,8 @@ class YaraStrings:
             value (str): the string
             str_type (str, optional): the type of the string ("text", "hex", "regex")
             regex_flags (str, optional): any regex flags to be applied to a regex string
-            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
+            newline_after (bool, optional): bool to determine if there should
+                be an extra newline after the string
 
         Returns:
             str: the generated name of the string for later handling

@@ -127,7 +127,8 @@ class YaraBuilder:
             name (str, optional): the optional name of the string
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
-            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
+            newline_after (bool, optional): bool to determine if there should be
+                an extra newline after the string
         """
         self._add_string(rule_name, value, "text", name=name, modifiers=modifiers)
 
@@ -143,7 +144,8 @@ class YaraBuilder:
             name (str, optional): the name of the string
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
-            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
+            newline_after (bool, optional): bool to determine if there should be
+                an extra newline after the string
         """
 
         if value.startswith("{") and value.endswith("}"):
@@ -163,7 +165,8 @@ class YaraBuilder:
             name (str, optional): the name of the string
                 (if not provided will add as anonymous string)
             modifiers (:obj:`list` of :obj:`str`, optional): any modifiers to add to the string
-            newline_after (bool, optional): bool to determine if there should be an extra newline after the string
+            newline_after (bool, optional): bool to determine if there should be
+                an extra newline after the string
         """
 
         regex_flags = None
